@@ -87,13 +87,13 @@ st.markdown("<h1 style='text-align: center;'>Le Barreau</h1>", unsafe_allow_html
 st.markdown("<p style='text-align: center; color: #A89F96; text-transform: uppercase; letter-spacing: 1px;'>Lycée Pierre Mendès France — Sessions de Recrutement 2026</p>", unsafe_allow_html=True)
 st.write("")
 
-# Formulaire de connexion
+# Formulaire de connexion sans exemple (placeholder vide)
 if st.session_state.candidate is None:
     with st.form("login_form"):
         st.markdown("### Espace Candidat")
         st.write("Entrez vos prénom et nom exacts pour accéder aux détails de votre session.")
         
-        full_name_input = st.text_input("Prénom et Nom", placeholder="Ex: Mehdi Besbes")
+        full_name_input = st.text_input("Prénom et Nom", placeholder="")
         submitted = st.form_submit_button("Accéder à mon espace")
         
         if submitted:
@@ -113,7 +113,7 @@ else:
     
     st.write("---")
     
-    # Affichage des informations demandées avec les séparateurs ":"
+    # Affichage des informations avec les deux points exigés
     st.markdown(f"**Sujet de session :** {c['topic']}")
     st.markdown(f"**Date et horaire :** {c['date']}")
     st.markdown(f"**Lieu exact :** {c['location']}")
