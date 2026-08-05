@@ -99,6 +99,17 @@ st.markdown("""
         text-transform: uppercase;
         letter-spacing: 1px;
     }
+    
+    /* Style de la carte logo sidebar */
+    .sidebar-brand {
+        background: #4A5548;
+        color: #FFFFFF;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        margin-bottom: 20px;
+        font-family: 'Playfair Display', serif;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -106,12 +117,8 @@ st.markdown("""
 # MOTEUR D'IMAGES DYNAMIQUES (VARIÉTÉ GARANTIE)
 # -------------------------------------------------------------------
 def get_unsplash_image(keywords):
-    """
-    Choisit un mot-clé au hasard dans la liste fournie et ajoute un timestamp 
-    à la requête pour contourner le cache et garantir une image différente.
-    """
     selected_query = random.choice(keywords)
-    timestamp = int(time.time() * 1000) # Anti-cache
+    timestamp = int(time.time() * 1000)
     try:
         url = f"https://api.unsplash.com/photos/random?query={selected_query}&orientation=landscape&client_id={UNSPLASH_ACCESS_KEY}&sig={timestamp}"
         res = requests.get(url, timeout=4)
@@ -120,7 +127,6 @@ def get_unsplash_image(keywords):
             return data['urls']['regular'], data['user']['name']
     except Exception:
         pass
-    # Fallback de sécurité
     return "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=1200", "Unsplash Premium"
 
 # -------------------------------------------------------------------
@@ -135,13 +141,14 @@ if 'welcome_shown' not in st.session_state:
 # BARRE LATÉRALE (LOGO & NAVIGATION)
 # -------------------------------------------------------------------
 with st.sidebar:
-    # Intégration de ton logo exact
-    try:
-        st.image("Vert Neutre Classique Librairie Logo.jpg", use_container_width=True)
-    except FileNotFoundError:
-        st.warning("⚠️ Logo non trouvé. Vérifie que 'Vert Neutre Classique Librairie Logo.jpg' est dans le même dossier que ce script.")
+    # En-tête style carte institutionnelle inspirée de ton logo
+    st.markdown("""
+    <div class="sidebar-brand">
+        <h3 style="margin:0; color:#FFFFFF;">LE BARREAU</h3>
+        <p style="font-size:0.8rem; margin:5px 0 0 0; color:#E2E8F0;">Pierre Mendès France</p>
+    </div>
+    """, unsafe_allow_html=True)
     
-    st.markdown("---")
     st.title("Navigation")
     page = st.radio("Rubriques", [
         "📰 À la Une",
