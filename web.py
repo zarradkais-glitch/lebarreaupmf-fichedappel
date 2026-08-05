@@ -2,7 +2,9 @@ import streamlit as st
 import requests
 import random
 import time
-from datetime import datetime, timedelta
+import json
+import os
+from datetime import datetime
 
 # -------------------------------------------------------------------
 # CONFIGURATION DE LA PAGE
@@ -15,6 +17,36 @@ st.set_page_config(
 )
 
 UNSPLASH_ACCESS_KEY = "FQt3q9yJIf1-4q_v1Kg0fptsuOfsw0qfU-GvbbBb6cE"
+DATA_FILE = "articles.json"
+
+# -------------------------------------------------------------------
+# GESTION DES ARTICLES (STOCKAGE JSON)
+# -------------------------------------------------------------------
+def charger_articles():
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, "r", encoding="utf-8") as f:
+            try:
+                return json.load(f)
+            except json.JSONDecodeError:
+                return []
+    # Articles par défaut si le fichier n'existe pas encore
+    return [
+        {
+            "titre": "L'Altération du Discernement : Le Conseil Constitutionnel Trace une Nouvelle Ligne Rouge",
+            "rubrique": "JURISPRUDENCE PÉNALE",
+            "auteur": "Le Pôle Rédactionnel",
+            "date": datetime.now().strftime("%d %B %Y"),
+            "contenu": """L'imputabilité des infractions commises sous l'emprise de substances psychoactives fait l'objet d'un revirement jurisprudentiel majeur. Saisi d'une Question Prioritaire de Constitutionnalité (QPC), le Conseil Constitutionnel a dû trancher un débat juridique complexe : l'abolition temporaire du discernement, lorsqu'elle résulte d'une consommation volontaire de stupéfiants, peut-elle constituer une cause d'irresponsabilité pénale au sens de l'article 122-1 du Code pénal ?<br><br>Dans sa décision rendue publique, les Sages ont affirmé que la protection de la société prévaut. <b>Le fait de se placer volontairement dans un état de vulnérabilité psychique ne saurait exonérer l'auteur de ses actes.</b>""",
+            "source_texte": "Conseil Constitutionnel - Décision n° 2026-987 QPC",
+            "source_lien": "https://www.conseil-constitutionnel.fr/"
+        }
+    ]
+
+def sauvegarder_article(nouvel_article):
+    articles = charger_articles()
+    articles.insert(0, nouvel_article) # Ajoute le plus récent en premier
+    with open(DATA_FILE, "w", encoding="utf-8") as f:
+        json.dump(articles, f, ensure_ascii=False, indent=4)
 
 # -------------------------------------------------------------------
 # DESIGN EDITORIAL MODERNE & ÉPURÉ
@@ -80,12 +112,6 @@ st.markdown("""
         font-size: 0.9rem;
     }
     
-    .source-box h4 {
-        margin-top: 0;
-        color: #0F172A;
-        font-family: 'Plus Jakarta Sans', sans-serif;
-    }
-
     .badge-modern {
         background: #0F172A;
         color: #FFFFFF;
@@ -95,17 +121,6 @@ st.markdown("""
         border-radius: 4px;
         text-transform: uppercase;
         letter-spacing: 1px;
-    }
-    
-    .poll-results-box {
-        background: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        border-left: 5px solid #0F172A;
-        border-radius: 8px;
-        padding: 20px;
-        margin-top: 40px;
-        margin-bottom: 30px;
-        box-shadow: 0px 4px 12px rgba(0,0,0,0.03);
     }
     
     .sidebar-brand {
@@ -137,17 +152,15 @@ def get_unsplash_image(keywords):
     return f"https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=1200&sig={timestamp}", "Unsplash Premium"
 
 # -------------------------------------------------------------------
-# GESTION DE LA MÉMOIRE DES VOTES (Sondage de la veille)
+# GESTION DES VOTES DE LA VEILLE
 # -------------------------------------------------------------------
 if 'voted' not in st.session_state:
     st.session_state.voted = False
     st.session_state.vote_choice = None
-    st.session_state.count_pour = 142  - random.randint(5, 20) # Simulation de votes de la veille
-    st.session_state.count_contre = 98 + random.randint(5, 20)
+    st.session_state.count_pour = 125
+    st.session_state.count_contre = 84
 
-# -------------------------------------------------------------------
-# ANIMATION DE BIENVENUE (TOAST UNIQUE)
-# -------------------------------------------------------------------
+# Animation d'entrée
 if 'welcome_shown' not in st.session_state:
     time.sleep(0.5)
     st.toast("La justice n'attend pas. Bienvenue sur le Journal officiel du club.", icon="⚖️")
@@ -174,66 +187,61 @@ st.markdown(f"""
 <div class="top-nav">
     <div class="brand-logo">LE BARREAU JOURNAL</div>
     <div style="color: #64748B; font-size: 0.95rem; font-weight: 500;">
-        Journal officiel du club • {(datetime.now()).strftime('%d %B %Y')}
+        Journal officiel du club • {datetime.now().strftime('%d %B %Y')}
     </div>
 </div>
 """, unsafe_allow_html=True)
 
 # -------------------------------------------------------------------
-# CRÉATION DES 3 ONGLETS EXACTS
+# 4 ONGLETS (DONT L'ESPACE RÉDACTEUR)
 # -------------------------------------------------------------------
-onglet_une, onglet_debat, onglet_sources = st.tabs([
+onglet_une, onglet_debat, onglet_sources, onglet_redacteur = st.tabs([
     "📄 À la une", 
     "🗳️ Débat interactif", 
-    "📚 Sources et jurisprudences"
+    "📚 Sources et jurisprudences",
+    "✍️ Espace Rédacteur"
 ])
 
 # ===================================================================
-# ONGLÉ 1 : À LA UNE (Inclus les résultats du sondage de la veille)
+# ONGLÉ 1 : À LA UNE (Affiche tous les articles enregistrés dynamiquement)
 # ===================================================================
 with onglet_une:
-    st.markdown('<span class="badge-modern">JURISPRUDENCE PÉNALE</span>', unsafe_allow_html=True)
-    st.markdown('<div class="article-title">L\'Altération du Discernement : Le Conseil Constitutionnel Trace une Nouvelle Ligne Rouge</div>', unsafe_allow_html=True)
-    st.markdown(f'<div class="article-meta">Par le Pôle Rédactionnel • Lecture : 4 min • Édition du {(datetime.now()).strftime("%d %B %Y")}</div>', unsafe_allow_html=True)
+    articles = charger_articles()
+    
+    for art in articles:
+        st.markdown(f'<span class="badge-modern">{art["rubrique"]}</span>', unsafe_allow_html=True)
+        st.markdown(f'<div class="article-title">{art["titre"]}</div>', unsafe_allow_html=True)
+        st.markdown(f'<div class="article-meta">Par {art["auteur"]} • Lecture : 4 min • Édition du {art["date"]}</div>', unsafe_allow_html=True)
 
-    img_hero, photog_hero = get_unsplash_image(["supreme-court", "gavel", "justice-scale", "law-books", "trial", "legal-office"])
-    st.image(img_hero, caption=f"Crédit photographique : {photog_hero} / Unsplash", use_container_width=True)
+        img_hero, photog_hero = get_unsplash_image(["supreme-court", "gavel", "justice-scale", "law-books", "trial"])
+        st.image(img_hero, caption=f"Crédit photographique : {photog_hero} / Unsplash", use_container_width=True)
 
-    st.markdown("""
-    <div class="article-content">
-        L'imputabilité des infractions commises sous l'emprise de substances psychoactives fait l'objet d'un revirement jurisprudentiel majeur. 
-        Saisi d'une Question Prioritaire de Constitutionnalité (QPC), le Conseil Constitutionnel a dû trancher un débat juridique complexe : 
-        l'abolition temporaire du discernement, lorsqu'elle résulte d'une consommation volontaire de stupéfiants, peut-elle constituer une cause d'irresponsabilité pénale au sens de l'article 122-1 du Code pénal ?
-        <br><br>
-        Dans sa décision rendue publique, les Sages ont affirmé que la protection de la société prévaut. 
-        <b>Le fait de se placer volontairement dans un état de vulnérabilité psychique ne saurait exonérer l'auteur de ses actes.</b> 
-        Cette décision vient clore des mois de débats doctrinaux initiés par la Cour de cassation, et impose désormais aux juges du fond d'évaluer <i>l'intention préalable</i> à la consommation de la substance.
-    </div>
-    """, unsafe_allow_html=True)
+        st.markdown(f'<div class="article-content">{art["contenu"]}</div>', unsafe_allow_html=True)
+        
+        if art.get("source_texte"):
+            st.markdown(f"""
+            <div class="source-box">
+                <h4>📚 Source Officielle</h4>
+                <a href="{art.get('source_lien', '#')}" target="_blank">{art['source_texte']}</a>
+            </div>
+            """, unsafe_allow_html=True)
+        st.markdown("---")
 
-    # BLOC RÉSULTATS DU SONDAGE DE LA VEILLE (Affiché le lendemain sur la page d'accueil)
+    # Résultats du sondage de la veille
     total_votes = st.session_state.count_pour + st.session_state.count_contre
     pct_pour = int((st.session_state.count_pour / total_votes) * 100)
     pct_contre = 100 - pct_pour
 
     st.markdown(f"""
-    <div class="poll-results-box">
-        <span class="badge-modern">RÉSULTATS OFFICIELS DU SONDAGE DE LA VEILLE</span>
-        <h3 style="font-family: 'Playfair Display', serif; margin-top: 10px; margin-bottom: 5px;">
-            Sujet : Le droit de vote à 16 ans — Verdict de la communauté
-        </h3>
-        <p style="color: #64748B; font-size: 0.9rem; margin-bottom: 20px;">
-            Clôture du scrutin après 24 heures de consultation • Total des suffrages exprimés : <b>{total_votes} votes</b>
-        </p>
-        <div style="margin-bottom: 10px;">
-            <b>👍 POUR (Élargissement du corps électoral) :</b> {pct_pour}% ({st.session_state.count_pour} votes)
-        </div>
+    <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-left: 5px solid #0F172A; border-radius: 8px; padding: 20px; margin-top: 30px;">
+        <span class="badge-modern">RÉSULTATS DU SONDAGE DE LA VEILLE</span>
+        <h3 style="font-family: 'Playfair Display', serif; margin-top: 10px;">Le droit de vote à 16 ans — Verdict</h3>
+        <p style="color: #64748B; font-size: 0.9rem;">Total des suffrages exprimés : <b>{total_votes} votes</b></p>
+        <div style="margin-bottom: 5px;"><b>👍 POUR :</b> {pct_pour}% ({st.session_state.count_pour} votes)</div>
         <div style="background: #E2E8F0; border-radius: 4px; height: 10px; width: 100%; margin-bottom: 15px;">
             <div style="background: #0F172A; width: {pct_pour}%; height: 10px; border-radius: 4px;"></div>
         </div>
-        <div style="margin-bottom: 10px;">
-            <b>👎 CONTRE (Maintien de la majorité à 18 ans) :</b> {pct_contre}% ({st.session_state.count_contre} votes)
-        </div>
+        <div style="margin-bottom: 5px;"><b>👎 CONTRE :</b> {pct_contre}% ({st.session_state.count_contre} votes)</div>
         <div style="background: #E2E8F0; border-radius: 4px; height: 10px; width: 100%;">
             <div style="background: #64748B; width: {pct_contre}%; height: 10px; border-radius: 4px;"></div>
         </div>
@@ -244,49 +252,31 @@ with onglet_une:
 # ONGLÉ 2 : DÉBAT INTERACTIF
 # ===================================================================
 with onglet_debat:
-    st.markdown('<span class="badge-modern">SCRUD & TRIBUNE LIBRE</span>', unsafe_allow_html=True)
-    st.markdown('<div class="article-title">Le Débat de la Semaine : Participez au Scrutin</div>', unsafe_allow_html=True)
-    st.write("Exprimez votre position juridique. Les résultats définitifs de ce vote seront publiés dès demain matin à la Une.")
+    st.markdown('<span class="badge-modern">SCRUTIN OFFICIEL</span>', unsafe_allow_html=True)
+    st.markdown('<div class="article-title">Le Débat de la Semaine</div>', unsafe_allow_html=True)
+    st.write("Exprimez votre position. Les résultats s'afficheront dès demain sur la page À la une.")
     
-    img_deb, photog_deb = get_unsplash_image(["voting", "youth", "debate", "microphone", "parliament-session"])
-    st.image(img_deb, caption=f"Crédit photographique : {photog_deb} / Unsplash", use_container_width=True)
+    img_deb, photog_deb = get_unsplash_image(["voting", "youth", "debate", "microphone"])
+    st.image(img_deb, caption=f"Crédit : {photog_deb} / Unsplash", use_container_width=True)
 
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown("#### Option A : POUR")
-        st.write("La jeunesse est en première ligne des grands enjeux de long terme (climat, dette). Aligner la citoyenneté active sur la responsabilité pénale relève de l'équité.")
-    with col2:
-        st.markdown("#### Option B : CONTRE")
-        st.write("Le droit civil fixe la majorité à 18 ans pour garantir une pleine autonomie contractuelle et intellectuelle vis-à-vis du cadre familial.")
-
-    st.markdown("---")
-    
     if not st.session_state.voted:
-        st.subheader("🗳️ Exprimez votre vote (Action unique pour cette session)")
-        v_col1, v_col2 = st.columns(2)
-        with v_col1:
-            if st.button("Voter POUR l'élargissement", use_container_width=True):
+        c1, c2 = st.columns(2)
+        with c1:
+            if st.button("Voter POUR", use_container_width=True):
                 st.session_state.count_pour += 1
                 st.session_state.voted = True
                 st.session_state.vote_choice = "POUR"
-                st.success("Votre vote a été enregistré avec succès ! Il apparaîtra dans les résultats de demain.")
+                st.success("Vote enregistré !")
                 st.rerun()
-        with v_col2:
-            if st.button("Voter CONTRE le projet", use_container_width=True):
+        with c2:
+            if st.button("Voter CONTRE", use_container_width=True):
                 st.session_state.count_contre += 1
                 st.session_state.voted = True
                 st.session_state.vote_choice = "CONTRE"
-                st.success("Votre vote a été enregistré avec succès ! Il apparaîtra dans les résultats de demain.")
+                st.success("Vote enregistré !")
                 st.rerun()
     else:
-        st.info(f"✅ Vous avez déjà voté pour l'option **{st.session_state.vote_choice}**. Les résultats complets seront consultables dès demain sur l'onglet *À la une*.")
-
-    st.markdown("---")
-    st.subheader("📝 Soumettre votre plaidoirie")
-    st.text_input("Identité & Rôle", placeholder="Ex: Membre du Barreau")
-    st.text_area("Votre argumentaire juridique :")
-    if st.button("Transmettre au bureau"):
-        st.success("Votre contribution a été transmise au comité de lecture.")
+        st.info(f"✅ Vous avez voté **{st.session_state.vote_choice}**.")
 
 # ===================================================================
 # ONGLÉ 3 : SOURCES ET JURISPRUDENCES
@@ -294,19 +284,55 @@ with onglet_debat:
 with onglet_sources:
     st.markdown('<span class="badge-modern">VEILLE DOCUMENTAIRE</span>', unsafe_allow_html=True)
     st.markdown('<div class="article-title">Sources et Jurisprudences Officielles</div>', unsafe_allow_html=True)
-    st.write("Retrouvez l'ensemble des bases légales et des arrêts de référence ayant servi à la rédaction des analyses.")
-
-    img_src, photog_src = get_unsplash_image(["library", "old-books", "archive", "document-stack"])
-    st.image(img_src, caption=f"Crédit photographique : {photog_src} / Unsplash", use_container_width=True)
-
+    
     st.markdown("""
     <div class="source-box">
-        <h4>📚 Références Constitutionnelles et Administratives</h4>
+        <h4>📚 Références Clés</h4>
         <ul>
-            <li><b>Conseil Constitutionnel :</b> <a href="https://www.conseil-constitutionnel.fr/" target="_blank">Accès au portail des décisions et QPC</a></li>
-            <li><b>Légifrance :</b> <a href="https://www.legifrance.gouv.fr/" target="_blank">Service public de la diffusion du droit (Codes et Lois)</a></li>
-            <li><b>Cour de Cassation :</b> <a href="https://www.courdecassation.fr/" target="_blank">Jurisprudence de l'ordre judiciaire</a></li>
-            <li><b>Conseil d'État :</b> <a href="https://www.conseil-etat.fr/" target="_blank">Jurisprudence administrative et arrêts d'assemblée</a></li>
+            <li><b>Conseil Constitutionnel :</b> <a href="https://www.conseil-constitutionnel.fr/" target="_blank">Portail des décisions</a></li>
+            <li><b>Légifrance :</b> <a href="https://www.legifrance.gouv.fr/" target="_blank">Service public de diffusion du droit</a></li>
+            <li><b>Conseil d'État :</b> <a href="https://www.conseil-etat.fr/" target="_blank">Jurisprudence administrative</a></li>
         </ul>
     </div>
     """, unsafe_allow_html=True)
+
+# ===================================================================
+# ONGLÉ 4 : ESPACE RÉDACTEUR (Sécurisé par mot de passe)
+# ===================================================================
+with onglet_redacteur:
+    st.markdown('<span class="badge-modern">INTERNE AU BUREAU</span>', unsafe_allow_html=True)
+    st.markdown('<div class="article-title">Publier un Nouvel Article</div>', unsafe_allow_html=True)
+    
+    password = st.text_input("Mot de passe rédacteur :", type="password")
+    
+    # Mets ici le mot de passe secret de ton choix pour le club
+    if password == "barreau2026":
+        st.success("Accès autorisé. Remplissez le formulaire ci-dessous :")
+        
+        with st.form("form_article"):
+            n_titre = st.text_input("Titre de l'article")
+            n_rubrique = st.selectbox("Rubrique", ["JURISPRUDENCE PÉNALE", "DROIT PUBLIC", "TRIBUNE LIBRE", "INTERNATIONAL"])
+            n_auteur = st.text_input("Auteur / Pôle", value="Le Pôle Rédactionnel")
+            n_contenu = st.text_area("Contenu de l'article (Le texte complet)")
+            n_source_texte = st.text_input("Nom de la source (ex: Conseil d'État - Arrêt X)")
+            n_source_lien = st.text_input("Lien URL de la source")
+            
+            submit = st.form_submit_button("Publier l'article sur la plateforme")
+            
+            if submit:
+                if n_titre and n_contenu:
+                    nouvel_art = {
+                        "titre": n_titre,
+                        "rubrique": n_rubrique,
+                        "auteur": n_auteur,
+                        "date": datetime.now().strftime("%d %B %Y"),
+                        "contenu": n_contenu.replace("\n", "<br>"),
+                        "source_texte": n_source_texte,
+                        "source_lien": n_source_lien
+                    }
+                    sauvegarder_article(nouvel_art)
+                    st.success("🎉 Article publié avec succès ! Il est désormais visible dans l'onglet À la une.")
+                else:
+                    st.error("Veuillez remplir au moins le titre et le contenu.")
+    elif password != "":
+        st.error("Mot de passe incorrect.")
