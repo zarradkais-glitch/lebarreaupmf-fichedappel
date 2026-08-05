@@ -10,6 +10,9 @@ st.set_page_config(
     layout="wide"
 )
 
+# Clé API Unsplash intégrée
+UNSPLASH_ACCESS_KEY = "FQt3q9yJIf1-4q_v1Kg0fptsuOfsw0qfU-GvbbBb6cE"
+
 # Style CSS Sombre, Or & Cyberspace
 st.markdown("""
 <style>
@@ -41,26 +44,17 @@ st.markdown("""
 def get_unsplash_image(query="justice"):
     """
     Récupère une image pertinente depuis l'API Unsplash.
-    Si pas de clé API, utilise la recherche publique Unsplash Source.
     """
-    # Option A : Clé API Unsplash officielle (si configurée dans Secrets Streamlit)
-    api_key = st.secrets.get("UNSPLASH_ACCESS_KEY", None)
-    
-    if api_key:
-        try:
-            url = f"https://api.unsplash.com/photos/random?query={query}&orientation=landscape&client_id={api_key}"
-            response = requests.get(url, timeout=5)
-            if response.status_code == 200:
-                data = response.json()
-                return data['urls']['regular'], data['user']['name']
-        except Exception:
-            pass
+    try:
+        url = f"https://api.unsplash.com/photos/random?query={query}&orientation=landscape&client_id={UNSPLASH_ACCESS_KEY}"
+        response = requests.get(url, timeout=5)
+        if response.status_code == 200:
+            data = response.json()
+            return data['urls']['regular'], data['user']['name']
+    except Exception:
+        pass
 
-    # Option B : URL Dynamique directe Unsplash (Sans clé API requise)
-    clean_query = query.replace(" ", ",").lower()
-    fallback_url = f"https://source.unsplash.com/featured/1200x600/?{clean_query}"
-    
-    # Images HD garanties si Unsplash direct met du temps
+    # Images par défaut si soucis réseau
     default_images = {
         "justice": "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=1200",
         "tech": "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1200",
@@ -94,7 +88,7 @@ if rubrique in ["🔥 À la Une", "🇫🇷 Droit Français"]:
     st.markdown("---")
     
     # Article 1
-    query_keyword = "justice"
+    query_keyword = "courtroom"
     img_url, photographer = get_unsplash_image(query_keyword)
     
     st.markdown("""
@@ -102,8 +96,8 @@ if rubrique in ["🔥 À la Une", "🇫🇷 Droit Français"]:
     <h2>Réforme de la Responsabilité Pénale : Le Conseil Constitutionnel Précise sa Doctrine</h2>
     """, unsafe_allow_html=True)
     
-    # Affichage de l'image récupérée via Unsplash
-    st.image(img_url, caption=f"Crédit photo : {photographer} / Unsplash", use_column_width=True)
+    # Affichage corrigé avec use_container_width=True
+    st.image(img_url, caption=f"Crédit photo : {photographer} / Unsplash", use_container_width=True)
     
     st.write("""
     Une décision majeure rendue ce matin redéfinit les contours de l'imputabilité pénale en cas de trouble partiel du discernement. 
@@ -114,7 +108,7 @@ if rubrique in ["🔥 À la Une", "🤖 Cyber-Droit & IA"]:
     st.markdown("---")
     
     # Article 2
-    query_keyword = "tech"
+    query_keyword = "technology"
     img_url_tech, photographer_tech = get_unsplash_image(query_keyword)
     
     st.markdown("""
@@ -122,7 +116,8 @@ if rubrique in ["🔥 À la Une", "🤖 Cyber-Droit & IA"]:
     <h2>Régulation des Modèles d'IA Générative : Les Nouvelles Exigences de Transparence</h2>
     """, unsafe_allow_html=True)
     
-    st.image(img_url_tech, caption=f"Crédit photo : {photographer_tech} / Unsplash", use_column_width=True)
+    # Affichage corrigé avec use_container_width=True
+    st.image(img_url_tech, caption=f"Crédit photo : {photographer_tech} / Unsplash", use_container_width=True)
     
     st.write("""
     Les autorités d'étapes imposent désormais une traçabilité complète des données d'entraînement pour les intelligences artificielles. 
