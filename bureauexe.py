@@ -18,7 +18,7 @@ PROPOSITIONS_FILE = "propositions_bureau.json"
 PASSWORDS_FILE = "passwords_bureau.json"
 
 # -------------------------------------------------------------------
-# INITIALISATION DES RÔLES & MDP
+# INITIALISATION DES RÔLES & MDP (AVEC LE PROFESSEUR RÉFÉRENT)
 # -------------------------------------------------------------------
 DEFAUT_PASSWORDS = {
     "Présidence": "pres2026",
@@ -26,7 +26,8 @@ DEFAUT_PASSWORDS = {
     "Chef Communication": "com2026",
     "Chef Média": "media2026",
     "Chef Académique": "acad2026",
-    "Trésorier": "tres2026"
+    "Trésorier": "tres2026",
+    "Professeur Référent": "prof2026"
 }
 
 ROLE_POLE_MAP = {
@@ -35,7 +36,8 @@ ROLE_POLE_MAP = {
     "Chef Communication": "📢 COMMUNICATION",
     "Chef Média": "🎬 MÉDIAS",
     "Chef Académique": "📚 ACADÉMIQUE",
-    "Trésorier": "💶 TRÉSORERIE"
+    "Trésorier": "💶 TRÉSORERIE",
+    "Professeur Référent": "🎓 PROFESSEUR RÉFÉRENT"
 }
 
 def charger_passwords():
