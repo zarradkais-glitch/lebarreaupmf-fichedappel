@@ -113,6 +113,7 @@ if st.session_state.candidate is None:
             else:
                 st.error("Nom introuvable. Veuillez vérifier l'orthographe ou contacter le bureau.")
 else:
+else:
     c = st.session_state.candidate
     
     st.markdown(f"### Bienvenue, {c['name']}")
@@ -129,9 +130,27 @@ else:
     st.write("---")
     st.markdown(f"📄 **Support :** {c['docName']}")
     
+    # Gestion dynamique du PDF selon la session
+    if "Droit International" in c['docName']:
+        pdf_filename = "guide_droit_international.pdf"
+    else:
+        pdf_filename = "guide_liberte_expression.pdf"
+    
+    # Bouton de téléchargement direct du PDF
+    try:
+        with open(pdf_filename, "rb") as pdf_file:
+            PDFbyte = pdf_file.read()
+            st.download_button(
+                label="📥 Télécharger le Background Guide (PDF)",
+                data=PDFbyte,
+                file_name=pdf_filename,
+                mime='application/octet-stream'
+            )
+    except FileNotFoundError:
+        st.warning(f"Le fichier {pdf_filename} est en cours de mise en ligne par le bureau.")
+    
+    st.write("")
     if st.button("← Se déconnecter"):
         st.session_state.candidate = None
         st.rerun()
-
-st.write("---")
 st.markdown("<p style='text-align: center; color: #A89F96; font-size: 0.8rem;'>© 2026 Le Barreau — Lycée Pierre Mendès France, Tunis.</p>", unsafe_allow_html=True)
