@@ -1,27 +1,19 @@
 import streamlit as st
 import unicodedata
-import os
 
-# Configuration de la page
+# Configuration de la page et de l'icône de l'onglet
 st.set_page_config(
     page_title="Espace Candidat | Le Barreau - PMF",
     page_icon="⚖️",
     layout="centered"
 )
 
-# Application de styles CSS personnalisés
+# Design épuré, élégant et sombre
 st.markdown("""
     <style>
     .stApp {
         background-color: #120F0D;
         color: #F5F2EF;
-    }
-    .custom-card {
-        background-color: #1A1613;
-        border: 1px solid #2C2420;
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
     }
     h1, h2, h3 {
         font-family: 'Georgia', serif;
@@ -86,16 +78,16 @@ database = [
 def normalize(text):
     return ''.join(c for c in unicodedata.normalize('NFD', text) if unicodedata.category(c) != 'Mn').lower().strip()
 
-# Gestion de la session Streamlit
+# Gestion de la session
 if 'candidate' not in st.session_state:
     st.session_state.candidate = None
 
-# En-tête
+# En-tête du site
 st.markdown("<h1 style='text-align: center;'>Le Barreau</h1>", unsafe_allow_html=True)
 st.markdown("<p style='text-align: center; color: #A89F96; text-transform: uppercase; letter-spacing: 1px;'>Lycée Pierre Mendès France — Sessions de Recrutement 2026</p>", unsafe_allow_html=True)
 st.write("")
 
-# Affichage conditionnel (Connexion vs Tableau de bord)
+# Formulaire de connexion
 if st.session_state.candidate is None:
     with st.form("login_form"):
         st.markdown("### Espace Candidat")
@@ -117,37 +109,32 @@ else:
     c = st.session_state.candidate
     
     st.markdown(f"### Bienvenue, {c['name']}")
-    st.info(f"📍 **{c['session']}**")
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown(f"**Sujet de Session**\n{c['topic']}")
-        st.markdown(f"**Lieu exact**\n{c['location']}")
-    with col2:
-        st.markdown(f"**Date & Horaire**\n{c['date']}")
-        st.markdown(f"**Juges / Évaluateurs**\n{c['judges']}")
+    st.info(f"📍 **Numéro de session :** {c['session']}")
     
     st.write("---")
-    st.markdown(f"📄 **Support :** {c['docName']}")
     
-    # Gestion dynamique du nom de fichier PDF en fonction du sujet
-    if "Droit International" in c['docName']:
-        pdf_filename = "guide_droit_international.pdf"
-    else:
-        pdf_filename = "guide_liberte_expression.pdf"
+    # Affichage des informations demandées avec les séparateurs ":"
+    st.markdown(f"**Sujet de session :** {c['topic']}")
+    st.markdown(f"**Date et horaire :** {c['date']}")
+    st.markdown(f"**Lieu exact :** {c['location']}")
+    st.markdown(f"**Juges et évaluateurs :** {c['judges']}")
     
-    # Ajout du bouton de téléchargement du PDF si le fichier est présent dans le dépôt
-    if os.path.exists(pdf_filename):
-        with open(pdf_filename, "rb") as pdf_file:
-            PDFbyte = pdf_file.read()
-            st.download_button(
-                label="📥 Télécharger le Background Guide (PDF)",
-                data=PDFbyte,
-                file_name=pdf_filename,
-                mime='application/pdf'
-            )
+    st.write("---")
+    st.markdown("### 🎥 Ressources et Vidéos de Préparation")
+    
+    # Vidéo 1 : Facultative (spécifique à la session)
+    if "Session 1" in c['session']:
+        st.markdown("**1. Vidéo de soutien (Facultatif) :** Support en plus pour enrichir vos connaissances générales et vous appuyer dessus pour le débat.")
+        st.video("https://youtu.be/TEjAtdHGGNM?si=4qAr1RzkE1Qk2e1P")
     else:
-        st.info(f"💡 Le document PDF ({pdf_filename}) sera bientôt disponible en téléchargement.")
+        st.markdown("**1. Vidéo de soutien (Facultatif) :** Support en plus pour enrichir vos connaissances générales et vous appuyer dessus pour le débat.")
+        st.video("https://youtu.be/-PqpU3n_W6s?si=YKhTSEaygUzsev_K")
+        
+    st.write("")
+    
+    # Vidéo 2 : Conseillée (générale pour comprendre le débat)
+    st.markdown("**2. Vidéo méthode (Très conseillé) :** Destinée à comprendre comment fonctionne un débat juridique et structurer votre argumentation.")
+    st.video("https://youtu.be/c4n3g2r_NAo?si=HJu0JM6ON41cHO2K")
     
     st.write("")
     if st.button("← Se déconnecter"):
