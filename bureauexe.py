@@ -18,7 +18,7 @@ PROPOSITIONS_FILE = "propositions_bureau.json"
 PASSWORDS_FILE = "passwords_bureau.json"
 
 # -------------------------------------------------------------------
-# INITIALISATION / RÉINITIALISATION DES PROPOSITIONS & MDP
+# INITIALISATION DES RÔLES & MDP
 # -------------------------------------------------------------------
 DEFAUT_PASSWORDS = {
     "Présidence": "pres2026",
@@ -53,7 +53,6 @@ def sauvegarder_password(role_key, nouveau_mdp):
     with open(PASSWORDS_FILE, "w", encoding="utf-8") as f:
         json.dump(pwds, f, ensure_ascii=False, indent=4)
 
-# Chargement sécurisé avec nettoyage des anciennes données incompatibles
 def charger_propositions():
     if os.path.exists(PROPOSITIONS_FILE):
         with open(PROPOSITIONS_FILE, "r", encoding="utf-8") as f:
@@ -65,7 +64,6 @@ def charger_propositions():
         maintenant = datetime.now()
         props_valides = []
         for p in props:
-            # Sécurité : Vérifie que la clé "date_raw" existe bien pour éviter le KeyError
             if "date_raw" in p:
                 try:
                     date_pub = datetime.strptime(p["date_raw"], "%Y-%m-%d %H:%M:%S")
@@ -112,7 +110,7 @@ if str_app.session_state.logged_in_role:
         str_app.session_state.last_activity = time.time()
 
 # -------------------------------------------------------------------
-# DESIGN & STYLING CSS ULTRA-CONTRASTÉ
+# DESIGN & STYLING CSS (CORRECTION TOTALE DES MENUS DÉROULANTS)
 # -------------------------------------------------------------------
 str_app.markdown("""
 <style>
@@ -196,10 +194,28 @@ str_app.markdown("""
         border: 1px solid #628A6D !important;
     }
 
+    /* CORRECTION DES BOÎTES DE SÉLECTION STREAMLIT POUR UN AFFICHAGE LISIBLE */
     div[data-baseweb="select"] > div {
-        background-color: #2E3F33 !important;
-        color: #FFFFFF !important;
-        border: 1px solid #628A6D !important;
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
+    }
+    
+    div[data-baseweb="select"] span {
+        color: #000000 !important;
+    }
+
+    div[data-baseweb="popover"], div[data-baseweb="menu"], ul[role="listbox"] {
+        background-color: #FFFFFF !important;
+    }
+
+    li[role="option"] {
+        background-color: #FFFFFF !important;
+        color: #000000 !important;
+    }
+
+    li[role="option"]:hover {
+        background-color: #E0E0E0 !important;
+        color: #000000 !important;
     }
     
     .stButton button {
@@ -263,37 +279,38 @@ tab_canal, tab_login = str_app.tabs([
 with tab_canal:
     str_app.markdown('<span class="badge-role">FIL D\'ACTUALITÉ & COLLÉGIALITÉ</span>', unsafe_allow_html=True)
     str_app.markdown('<div class="section-title">Canal Général des Annonces</div>', unsafe_allow_html=True)
-    str_app.markdown("Consultez les annonces de chaque pôle et votez (**un seul vote par utilisateur et par annonce**). Les publications disparaissent au bout de **24h**.")
+    str_app.markdown("Consultez les annonces de chaque pôle et participez aux votes proposés (**un seul vote par utilisateur et par annonce**). Les publications disparaissent au bout de **24h**.")
     
     propositions = charger_propositions()
     
     if not propositions:
-        str_app.info("𭕡 Aucune annonce active pour le moment. Rendez-vous dans l'onglet *Connexion & Publication* pour en poster une.")
+        str_app.info("𭕡 Aucune annonce active pour le moment. Rendez-vous dans l'onglet *Connexion & Publication* pour en poster une avec un vote.")
     else:
         str_app.markdown("---")
         for p in propositions:
             votes_actuels = p.get("votes", {})
+            type_vote = p.get("type_vote", "POUR/CONTRE")
+            options_personnalisees = p.get("options_vote", ["POUR", "CONTRE"])
             
             str_app.markdown(f"""
             <div class="prop-card">
                 <span style="background: #1A241D; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">{p['pole']}</span>
                 <h3 style="margin-top: 10px; font-family: 'Playfair Display', serif; color: #FFFFFF;">{p['titre']}</h3>
                 <p style="color: #FFFFFF; font-size: 1.05rem;">{p['contenu']}</p>
-                <p style="font-size: 0.85rem; color: #D8F3DC;">Publié par <b>{p['auteur']}</b> le {p['date_aff']} (Expire dans moins de 24h)</p>
+                <p style="font-size: 0.85rem; color: #D8F3DC;">Publié par <b>{p['auteur']}</b> le {p['date_aff']} | 🗳️ Type de vote : <b>{type_vote}</b></p>
             </div>
             """, unsafe_allow_html=True)
             
-            str_app.markdown("📊 **Votes enregistrés :**")
+            str_app.markdown("📊 **Résultats des votes :**")
             if votes_actuels:
                 cols_v = str_app.columns(max(len(votes_actuels), 1))
                 idx = 0
                 for pers, choix in votes_actuels.items():
                     with cols_v[idx]:
-                        couleur = "lightgreen" if choix == "POUR" else "lightcoral"
-                        str_app.markdown(f"• **{pers}** : :{couleur}[{choix}]")
+                        str_app.markdown(f"• **{pers}** : `{choix}`")
                     idx += 1
             else:
-                str_app.caption("Aucun vote pour l'instant.")
+                str_app.caption("Aucun vote enregistré pour l'instant.")
                 
             if str_app.session_state.logged_in_role:
                 user_actuel = str_app.session_state.logged_in_role
@@ -302,17 +319,14 @@ with tab_canal:
                 if deja_vote:
                     str_app.info(f"✅ Vous avez voté (**{votes_actuels[user_actuel]}**) avec votre profil ({user_actuel}).")
                 else:
-                    c_v1, c_v2 = str_app.columns(2)
-                    with c_v1:
-                        if str_app.button(f"✅ Voter POUR", key=f"pour_{p['id']}"):
-                            enregistrer_vote(p['id'], "POUR", user_actuel)
-                            str_app.success("Votre vote POUR a été enregistré !")
-                            str_app.rerun()
-                    with c_v2:
-                        if str_app.button(f"❌ Voter CONTRE", key=f"contre_{p['id']}"):
-                            enregistrer_vote(p['id'], "CONTRE", user_actuel)
-                            str_app.warning("Votre vote CONTRE a été enregistré.")
-                            str_app.rerun()
+                    str_app.markdown("👉 **Faites votre choix :**")
+                    cols_choix = str_app.columns(len(options_personnalisees))
+                    for i, opt in enumerate(options_personnalisees):
+                        with cols_choix[i]:
+                            if str_app.button(f"Voter {opt}", key=f"vote_{p['id']}_{opt}_{user_actuel}"):
+                                enregistrer_vote(p['id'], opt, user_actuel)
+                                str_app.success(f"Votre vote '{opt}' a bien été pris en compte !")
+                                str_app.rerun()
             else:
                 str_app.warning("🔒 Connectez-vous dans l'onglet **Connexion & Publication** pour pouvoir voter avec votre profil.")
                 
@@ -323,7 +337,7 @@ with tab_canal:
 # ===================================================================
 with tab_login:
     str_app.markdown('<span class="badge-role">ESPACE SÉCURISÉ DU MEMBRE</span>', unsafe_allow_html=True)
-    str_app.markdown('<div class="section-title">Connexion & Publication d\'Annonce</div>', unsafe_allow_html=True)
+    str_app.markdown('<div class="section-title">Connexion & Publication d\'Annonce avec Vote</div>', unsafe_allow_html=True)
     
     passwords = charger_passwords()
     
@@ -374,28 +388,45 @@ with tab_login:
                         str_app.success("🎉 Mot de passe mis à jour avec succès !")
         
         str_app.markdown("---")
-        str_app.markdown(f"### 📢 Publier une annonce au nom de votre pôle ({role_actif})")
-        str_app.write("Votre annonce sera immédiatement diffusée sur le Canal Général et visible pendant 24h.")
+        str_app.markdown(f"### 📢 Publier une annonce et configurer le vote ({role_actif})")
+        str_app.write("Rédigez votre annonce et définissez le format de vote que les membres devront utiliser.")
         
         with str_app.form("form_pub_directe"):
             titre_prop = str_app.text_input("Titre de l'annonce / projet / proposition")
             contenu_prop = str_app.text_area("Contenu détaillé")
-            btn_pub = str_app.form_submit_button("Diffuser sur le Canal Général")
+            
+            str_app.markdown("---")
+            str_app.markdown("**⚙️ Configuration du vote associé :**")
+            type_vote_choisi = str_app.selectbox(
+                "Type de vote pour cette annonce :", 
+                ["Classique (POUR / CONTRE)", "Personnalisé (Ex: Favorable / Réservé / Contre)", "Approbation simple (VALIDER)"]
+            )
+            
+            options_personnalisees_saisies = str_app.text_input(
+                "Options de vote personnalisées (séparées par des virgules)", 
+                value="POUR, CONTRE" if type_vote_choisi.startswith("Classique") else "Favorable, Réservé, Contre" if type_vote_choisi.startswith("Personnalisé") else "VALIDE"
+            )
+            
+            btn_pub = str_app.form_submit_button("Diffuser l'annonce et son vote sur le Canal Général")
             
             if btn_pub:
                 if not titre_prop or not contenu_prop:
-                    str_app.error("Veuillez remplir tous les champs.")
+                    str_app.error("Veuillez remplir le titre et le contenu de l'annonce.")
                 else:
+                     options_finales = [opt.strip() for opt in options_personnalisees_saisies.split(",") if opt.strip()]
                      maintenant_dt = datetime.now()
+                     
                      nouvelle = {
                         "id": str(int(time.time() * 1000)),
                         "pole": ROLE_POLE_MAP.get(role_actif, "📄 BUREAU"),
                         "auteur": role_actif,
                         "titre": titre_prop,
                         "contenu": contenu_prop,
+                        "type_vote": type_vote_choisi,
+                        "options_vote": options_finales,
                         "date_raw": maintenant_dt.strftime("%Y-%m-%d %H:%M:%S"),
                         "date_aff": maintenant_dt.strftime("%d/%m/%Y à %H:%M"),
                         "votes": {}
                     }
                      sauvegarder_proposition(nouvelle)
-                     str_app.success("🎉 Annonce publiée avec succès ! Rendez-vous sur l'onglet 'Canal Général & Votes'.")
+                     str_app.success("🎉 Annonce et système de vote publiés avec succès ! Rendez-vous sur l'onglet 'Canal Général & Votes'.")
