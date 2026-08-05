@@ -90,20 +90,20 @@ def verifier_session(role_nom):
             str_app.warning("⏱️ Votre session a expiré (plus de 10 minutes d'inactivité). Veuillez ressaisir votre mot de passe.")
 
 # -------------------------------------------------------------------
-# DESIGN VERT KAKI & PEP'S (CSS PERSONNALISÉ)
+# DESIGN VERT KAKI ULTRA-LISIBLE & PEP'S (CSS CORRIGÉ)
 # -------------------------------------------------------------------
 str_app.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap');
 
     .stApp {
-        background-color: #2F3E32; /* Vert Kaki Profond & Pep's */
+        background-color: #233026; /* Fond général vert très sombre et contrasté */
         color: #FFFFFF;
         font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
-    /* Textes généraux en blanc */
-    h1, h2, h3, h4, h5, h6, p, span, label, div {
+    /* Forcer TOUS les textes en blanc éclatant ou quasi-blanc pour une lisibilité parfaite */
+    h1, h2, h3, h4, h5, h6, p, span, label, div, .stMarkdown, .stCaption {
         color: #FFFFFF !important;
     }
 
@@ -112,7 +112,7 @@ str_app.markdown("""
         justify-content: space-between;
         align-items: flex-end;
         padding: 10px 0px 20px 0px;
-        border-bottom: 2px solid #587B60;
+        border-bottom: 2px solid #4A6B53;
         margin-bottom: 30px;
     }
     
@@ -121,40 +121,40 @@ str_app.markdown("""
         font-size: 2.2rem;
         font-weight: 700;
         letter-spacing: -0.5px;
-        color: #F4F6F4 !important;
+        color: #FFFFFF !important;
     }
 
     .section-title {
         font-family: 'Playfair Display', serif;
         font-size: 2rem;
         font-weight: 700;
-        color: #F4F6F4 !important;
+        color: #FFFFFF !important;
         margin-bottom: 10px;
         margin-top: 10px;
     }
 
     .dashboard-card {
-        background: #3B4D3F;
-        border: 1px solid #587B60;
+        background: #2E3F33;
+        border: 1px solid #4A6B53;
         border-top: 4px solid #A3B18B;
         padding: 20px;
         border-radius: 8px;
         margin-bottom: 20px;
-        box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+        box-shadow: 0px 4px 12px rgba(0,0,0,0.3);
     }
     
     .prop-card {
-        background: #3B4D3F;
-        border: 1px solid #587B60;
-        border-left: 5px solid #D4AF37;
+        background: #2E3F33;
+        border: 1px solid #4A6B53;
+        border-left: 5px solid #F4D03F;
         padding: 20px;
         border-radius: 8px;
         margin-bottom: 15px;
-        box-shadow: 0px 4px 12px rgba(0,0,0,0.15);
+        box-shadow: 0px 4px 12px rgba(0,0,0,0.3);
     }
     
     .badge-role {
-        background: #587B60;
+        background: #4A6B53;
         color: #FFFFFF !important;
         font-size: 0.75rem;
         font-weight: 600;
@@ -165,26 +165,39 @@ str_app.markdown("""
     }
     
     .sidebar-brand {
-        background: #233026;
+        background: #1A241D;
         color: #FFFFFF;
         padding: 20px;
         border-radius: 8px;
         text-align: center;
         margin-bottom: 20px;
         font-family: 'Playfair Display', serif;
-        border: 1px solid #587B60;
+        border: 1px solid #4A6B53;
     }
 
-    /* Style des widgets Streamlit pour s'accorder au thème kaki */
-    .stTextInput input, .stTextArea textarea, .stSelectbox select {
-        background-color: #3B4D3F !important;
+    /* Style des champs de saisie pour un contraste parfait */
+    .stTextInput input, .stTextArea textarea {
+        background-color: #2E3F33 !important;
         color: #FFFFFF !important;
-        border: 1px solid #587B60 !important;
+        border: 1px solid #628A6D !important;
+    }
+
+    div[data-baseweb="select"] > div {
+        background-color: #2E3F33 !important;
+        color: #FFFFFF !important;
+        border: 1px solid #628A6D !important;
     }
     
-    div[data-baseweb="select"] > div {
-        background-color: #3B4D3F !important;
-        color: #FFFFFF !important;
+    /* Boutons stylisés */
+    .stButton button {
+        background-color: #4A6B53;
+        color: #FFFFFF;
+        border: 1px solid #628A6D;
+        font-weight: 600;
+    }
+    .stButton button:hover {
+        background-color: #628A6D;
+        color: #FFFFFF;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -192,7 +205,7 @@ str_app.markdown("""
 # Animation d'entrée
 if 'welcome_exec_shown' not in str_app.session_state:
     time.sleep(0.5)
-    str_app.toast("Portail sécurisé du Bureau Exécutif — Le Barreau (Thème Kaki)", icon="⚖️")
+    str_app.toast("Portail sécurisé du Bureau Exécutif — Le Barreau", icon="⚖️")
     str_app.session_state.welcome_exec_shown = True
 
 # -------------------------------------------------------------------
@@ -202,13 +215,13 @@ with str_app.sidebar:
     str_app.markdown("""
     <div class="sidebar-brand">
         <h3 style="margin:0; color:#FFFFFF;">LE BARREAU</h3>
-        <p style="font-size:0.8rem; margin:5px 0 0 0; color:#D8F3DC;">Portail Exécutif Unifié</p>
+        <p style="font-size:0.8rem; margin:5px 0 0 0; color:#E2E8F0;">Portail Exécutif Unifié</p>
     </div>
     """, unsafe_allow_html=True)
     
     str_app.markdown("---")
     str_app.markdown("### 📡 Canal Général")
-    str_app.caption("Toutes les propositions des différents pôles s'y affichent en temps réel pour validation collégiale.")
+    str_app.caption("Consultez et publiez des annonces en temps réel pour validation collégiale.")
     str_app.markdown("---")
     str_app.markdown("### ⏱️ Sécurité Session")
     str_app.caption("Chaque session expire automatiquement après **10 minutes** d'inactivité.")
@@ -221,7 +234,7 @@ with str_app.sidebar:
 str_app.markdown(f"""
 <div class="top-nav">
     <div class="brand-logo">PORTAIL EXÉCUTIF & CANAL GÉNÉRAL</div>
-    <div style="color: #D8F3DC; font-size: 0.95rem; font-weight: 500;">
+    <div style="color: #FFFFFF; font-size: 0.95rem; font-weight: 600;">
         {datetime.now().strftime('%d %B %Y')}
     </div>
 </div>
@@ -261,22 +274,64 @@ def render_password_change_section(role_key, role_label):
                     str_app.error("Les deux nouveaux mots de passe ne correspondent pas.")
                 else:
                     sauvegarder_password(role_key, nouveau1)
-                    str_app.success("🎉 Mot de passe mis à jour avec succès ! Veuillez vous reconnecter avec votre nouveau mot de passe.")
+                    str_app.success("🎉 Mot de passe mis à jour avec succès !")
 
 # ===================================================================
-# 0. CANAL GÉNÉRAL & VOTES COLLÉGIAUX
+# 0. CANAL GÉNÉRAL & PUBLICATION RAPIDE / VOTES
 # ===================================================================
 with tab_canal:
     str_app.markdown('<span class="badge-role">FIL COMMUN DU BUREAU</span>', unsafe_allow_html=True)
-    str_app.markdown('<div class="section-title">Canal Général de Validation</div>', unsafe_allow_html=True)
-    str_app.write("Retrouvez ici toutes les légendes, textes de communication, notes financières ou décisions de pôles en attente d'approbation collégiale.")
+    str_app.markdown('<div class="section-title">Canal Général & Annonces</div>', unsafe_allow_html=True)
+    str_app.write("Publiez directement vos annonces, légendes ou propositions ici, et consultez les votes du bureau en temps réel.")
+    
+    # BOÎTE DE PUBLICATION DIRECTE DEPUIS LE CANAL GÉNÉRAL
+    with str_app.expander("➕ Publier une nouvelle annonce / proposition sur le canal", expanded=False):
+        with str_app.form("form_pub_rapide"):
+            p_pole = str_app.selectbox("Sélectionnez votre pôle émetteur :", [
+                "🏛️ PRÉSIDENCE", 
+                "📋 SECRÉTARIAT", 
+                "📢 COMMUNICATION", 
+                "🎬 MÉDIAS", 
+                "📚 ACADÉMIQUE", 
+                "💶 TRÉSORERIE"
+            ])
+            p_auteur = str_app.text_input("Votre nom ou rôle exact (ex: Chef Communication)")
+            p_titre = str_app.text_input("Titre de l'annonce / projet / légende")
+            p_contenu = str_app.text_area("Contenu détaillé de la proposition")
+            
+            btn_publier = str_app.form_submit_button("Diffuser sur le Canal Général")
+            
+            if btn_publier and p_titre and p_contenu and p_auteur:
+                nouvelle = {
+                    "id": str(random.randint(1000, 9999)),
+                    "pole": p_pole,
+                    "auteur": p_auteur,
+                    "titre": p_titre,
+                    "contenu": p_contenu,
+                    "date": datetime.now().strftime("%d/%m/%Y à %H:%M"),
+                    "votes": {}
+                }
+                sauvegarder_proposition(nouvelle)
+                str_app.success("🎉 Annonce publiée avec succès sur le canal général !")
+                str_app.rerun()
+
+    str_app.markdown("---")
+    str_app.subheader("📋 Fil d'actualité et Votes en cours")
     
     propositions = charger_propositions()
     
     if not propositions:
-        str_app.info("Aucune proposition active pour le moment. Chaque pôle peut publier depuis son espace dédié.")
+        str_app.info("Aucune annonce active pour le moment.")
     else:
-        votant_nom = str_app.selectbox("Sélectionnez votre identité pour voter :", ["Choisissez...", "Présidence", "Secrétariat Général", "Chef Communication", "Chef Média", "Chef Académique", "Trésorier"])
+        votant_nom = str_app.selectbox("Sélectionnez votre identité pour voter :", [
+            "Choisissez...", 
+            "Présidence", 
+            "Secrétariat Général", 
+            "Chef Communication", 
+            "Chef Média", 
+            "Chef Académique", 
+            "Trésorier"
+        ])
         
         str_app.markdown("---")
         
@@ -284,9 +339,9 @@ with tab_canal:
             votes_actuels = p.get("votes", {})
             str_app.markdown(f"""
             <div class="prop-card">
-                <span style="background: #233026; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.8rem;">{p['pole']}</span>
-                <h3 style="margin-top: 10px; font-family: 'Playfair Display', serif;">{p['titre']}</h3>
-                <p style="color: #F4F6F4; font-size: 1.05rem;">{p['contenu']}</p>
+                <span style="background: #1A241D; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">{p['pole']}</span>
+                <h3 style="margin-top: 10px; font-family: 'Playfair Display', serif; color: #FFFFFF;">{p['titre']}</h3>
+                <p style="color: #FFFFFF; font-size: 1.05rem;">{p['contenu']}</p>
                 <p style="font-size: 0.85rem; color: #D8F3DC;">Publié par <b>{p['auteur']}</b> le {p['date']}</p>
             </div>
             """, unsafe_allow_html=True)
@@ -344,26 +399,6 @@ with tab_pres:
             
         str_app.markdown("---")
         render_password_change_section("pres", "Présidence")
-        str_app.markdown("---")
-        
-        with str_app.form("form_prop_pres"):
-            str_app.subheader("📢 Soumettre une décision au Canal Général")
-            t_titre = str_app.text_input("Titre de la note stratégique / décision")
-            t_contenu = str_app.text_area("Contenu de la directive / proposition")
-            submit_p = str_app.form_submit_button("Envoyer sur le Canal Général")
-            
-            if submit_p and t_titre and t_contenu:
-                nouvelle = {
-                    "id": str(random.randint(1000, 9999)),
-                    "pole": "🏛️ PRÉSIDENCE",
-                    "auteur": "Présidence",
-                    "titre": t_titre,
-                    "contenu": t_contenu,
-                    "date": datetime.now().strftime("%d/%m/%Y à %H:%M"),
-                    "votes": {}
-                }
-                sauvegarder_proposition(nouvelle)
-                str_app.success("🎉 Note publiée avec succès sur le Canal Général pour vote !")
     elif pwd_pres != "":
         str_app.error("Mot de passe incorrect.")
 
@@ -391,26 +426,6 @@ with tab_sec:
             
         str_app.markdown("---")
         render_password_change_section("sec", "Secrétariat Général")
-        str_app.markdown("---")
-        
-        with str_app.form("form_prop_sec"):
-            str_app.subheader("📋 Soumettre un PV / Rapport au Canal Général")
-            t_titre = str_app.text_input("Titre du Compte-Rendu / Document")
-            t_contenu = str_app.text_area("Résumé ou détails du PV pour validation")
-            submit_s = str_app.form_submit_button("Diffuser au bureau")
-            
-            if submit_s and t_titre and t_contenu:
-                nouvelle = {
-                    "id": str(random.randint(1000, 9999)),
-                    "pole": "📋 SECRÉTARIAT",
-                    "auteur": "Secrétaire Général",
-                    "titre": t_titre,
-                    "contenu": t_contenu,
-                    "date": datetime.now().strftime("%d/%m/%Y à %H:%M"),
-                    "votes": {}
-                }
-                sauvegarder_proposition(nouvelle)
-                str_app.success("🎉 Document publié sur le Canal Général !")
     elif pwd_sec != "":
         str_app.error("Mot de passe incorrect.")
 
@@ -438,26 +453,6 @@ with tab_com:
             
         str_app.markdown("---")
         render_password_change_section("com", "Communication")
-        str_app.markdown("---")
-        
-        with str_app.form("form_prop_com"):
-            str_app.subheader("📢 Soumettre une légende / texte de com pour validation")
-            t_titre = str_app.text_input("Titre de la publication (ex: Post Instagram - Débat)")
-            t_contenu = str_app.text_area("Texte de communication / Légende proposée")
-            submit_c = str_app.form_submit_button("Soumettre au vote du bureau")
-            
-            if submit_c and t_titre and t_contenu:
-                nouvelle = {
-                    "id": str(random.randint(1000, 9999)),
-                    "pole": "📢 COMMUNICATION",
-                    "auteur": "Chef Communication",
-                    "titre": t_titre,
-                    "contenu": t_contenu,
-                    "date": datetime.now().strftime("%d/%m/%Y à %H:%M"),
-                    "votes": {}
-                }
-                sauvegarder_proposition(nouvelle)
-                str_app.success("🎉 Texte de communication envoyé sur le Canal Général !")
     elif pwd_com != "":
         str_app.error("Mot de passe incorrect.")
 
@@ -485,26 +480,6 @@ with tab_media:
             
         str_app.markdown("---")
         render_password_change_section("media", "Médias")
-        str_app.markdown("---")
-        
-        with str_app.form("form_prop_media"):
-            str_app.subheader("🎬 Partager des visuels / liens graphiques")
-            t_titre = str_app.text_input("Titre de l'affiche ou du visuel")
-            t_contenu = str_app.text_area("Lien Drive ou description des visuels validés")
-            submit_m = str_app.form_submit_button("Partager au bureau")
-            
-            if submit_m and t_titre and t_contenu:
-                nouvelle = {
-                    "id": str(random.randint(1000, 9999)),
-                    "pole": "🎬 MÉDIAS",
-                    "auteur": "Chef Média",
-                    "titre": t_titre,
-                    "contenu": t_contenu,
-                    "date": datetime.now().strftime("%d/%m/%Y à %H:%M"),
-                    "votes": {}
-                }
-                sauvegarder_proposition(nouvelle)
-                str_app.success("🎉 Visuels partagés sur le Canal Général !")
     elif pwd_media != "":
         str_app.error("Mot de passe incorrect.")
 
@@ -532,26 +507,6 @@ with tab_acad:
             
         str_app.markdown("---")
         render_password_change_section("acad", "Académique")
-        str_app.markdown("---")
-        
-        with str_app.form("form_prop_acad"):
-            str_app.subheader("📚 Proposer un sujet de débat ou cas pratique")
-            t_titre = str_app.text_input("Intitulé du sujet juridique / débat")
-            t_contenu = str_app.text_area("Description et argumentaire de la ressource")
-            submit_a = str_app.form_submit_button("Soumettre au vote collégial")
-            
-            if submit_a and t_titre and t_contenu:
-                nouvelle = {
-                    "id": str(random.randint(1000, 9999)),
-                    "pole": "📚 ACADÉMIQUE",
-                    "auteur": "Chef Académique",
-                    "titre": t_titre,
-                    "contenu": t_contenu,
-                    "date": datetime.now().strftime("%d/%m/%Y à %H:%M"),
-                    "votes": {}
-                }
-                sauvegarder_proposition(nouvelle)
-                str_app.success("🎉 Sujet académique publié sur le Canal Général !")
     elif pwd_acad != "":
         str_app.error("Mot de passe incorrect.")
 
@@ -579,25 +534,6 @@ with tab_tres:
             
         str_app.markdown("---")
         render_password_change_section("tres", "Trésorerie")
-        str_app.markdown("---")
-        
-        with str_app.form("form_prop_tres"):
-            str_app.subheader("💶 Soumettre une note de frais ou un budget au bureau")
-            t_titre = str_app.text_input("Objet de la dépense / demande budgétaire")
-            t_contenu = str_app.text_area("Détails financiers et montant estimé")
-            submit_t = str_app.form_submit_button("Soumettre pour validation")
-            
-            if submit_t and t_titre and t_contenu:
-                nouvelle = {
-                    "id": str(random.randint(1000, 9999)),
-                    "pole": "💶 TRÉSORERIE",
-                    "auteur": "Trésorier",
-                    "titre": t_titre,
-                    "contenu": t_contenu,
-                    "date": datetime.now().strftime("%d/%m/%Y à %H:%M"),
-                    "votes": {}
-                }
-                sauvegarder_proposition(nouvelle)
-                str_app.success("🎉 Note financière publiée sur le Canal Général pour validation !")
     elif pwd_tres != "":
         str_app.error("Mot de passe incorrect.")
+    
