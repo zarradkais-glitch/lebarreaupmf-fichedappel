@@ -53,7 +53,7 @@ def sauvegarder_password(role_key, nouveau_mdp):
     with open(PASSWORDS_FILE, "w", encoding="utf-8") as f:
         json.dump(pwds, f, ensure_ascii=False, indent=4)
 
-# Nettoyage automatique des propositions de plus de 24h
+# Chargement sécurisé avec nettoyage des anciennes données incompatibles
 def charger_propositions():
     if os.path.exists(PROPOSITIONS_FILE):
         with open(PROPOSITIONS_FILE, "r", encoding="utf-8") as f:
@@ -62,14 +62,18 @@ def charger_propositions():
             except json.JSONDecodeError:
                 props = []
                 
-        # Filtrer pour garder uniquement les annonces de moins de 24h
         maintenant = datetime.now()
         props_valides = []
         for p in props:
-            date_pub = datetime.strptime(p["date_raw"], "%Y-%m-%d %H:%M:%S")
-            if maintenant - date_pub < timedelta(hours=24):
-                props_valides.append(p)
-                
+            # Sécurité : Vérifie que la clé "date_raw" existe bien pour éviter le KeyError
+            if "date_raw" in p:
+                try:
+                    date_pub = datetime.strptime(p["date_raw"], "%Y-%m-%d %H:%M:%S")
+                    if maintenant - date_pub < timedelta(hours=24):
+                        props_valides.append(p)
+                except ValueError:
+                    continue
+                    
         return props_valides
     return []
 
@@ -100,7 +104,6 @@ if "logged_in_role" not in str_app.session_state:
 if "last_activity" not in str_app.session_state:
     str_app.session_state.last_activity = time.time()
 
-# Vérification expiration
 if str_app.session_state.logged_in_role:
     if time.time() - str_app.session_state.last_activity > SESSION_TIMEOUT:
         str_app.session_state.logged_in_role = None
@@ -121,7 +124,6 @@ str_app.markdown("""
         font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
-    /* Forcer tous les textes et éléments de la sidebar en blanc éclatant */
     h1, h2, h3, h4, h5, h6, p, span, label, div, .stMarkdown, .stCaption, [data-testid="stSidebar"] * {
         color: #FFFFFF !important;
     }
@@ -188,7 +190,6 @@ str_app.markdown("""
         border: 1px solid #4A6B53;
     }
 
-    /* Champs de saisie */
     .stTextInput input, .stTextArea textarea {
         background-color: #2E3F33 !important;
         color: #FFFFFF !important;
@@ -294,7 +295,6 @@ with tab_canal:
             else:
                 str_app.caption("Aucun vote pour l'instant.")
                 
-            # SECTION VOTE INTERACTIVE
             if str_app.session_state.logged_in_role:
                 user_actuel = str_app.session_state.logged_in_role
                 deja_vote = user_actuel in votes_actuels
@@ -347,7 +347,6 @@ with tab_login:
         role_actif = str_app.session_state.logged_in_role
         str_app.success(f"🟢 Vous êtes actuellement connecté en tant que : **{role_actif}**")
         
-        # Bouton de déconnexion / verrouillage manuel
         c_l1, c_l2 = str_app.columns(2)
         with c_l1:
             if str_app.button("🔒 Verrouiller / Se déconnecter manuellement"):
@@ -356,7 +355,6 @@ with tab_login:
                 
         str_app.markdown("---")
         
-        # Formulaire de modification de mot de passe personnel
         with str_app.expander("🔑 Modifier mon mot de passe"):
             with str_app.form("form_change_pwd"):
                 ancien_p = str_app.text_input("Ancien mot de passe", type="password")
