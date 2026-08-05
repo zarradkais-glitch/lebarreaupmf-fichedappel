@@ -1,15 +1,14 @@
 import streamlit as str_app
-import random
 import time
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # -------------------------------------------------------------------
 # CONFIGURATION DE LA PAGE
 # -------------------------------------------------------------------
 str_app.set_page_config(
-    page_title="Le Barreau — Portail Exécutif & Canal Général",
+    page_title="Le Barreau — Portail Exécutif Unifié",
     page_icon="⚖️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -19,15 +18,24 @@ PROPOSITIONS_FILE = "propositions_bureau.json"
 PASSWORDS_FILE = "passwords_bureau.json"
 
 # -------------------------------------------------------------------
-# GESTION DES MOTS DE PASSE (PERSISTANTS)
+# INITIALISATION / RÉINITIALISATION DES PROPOSITIONS & MDP
 # -------------------------------------------------------------------
 DEFAUT_PASSWORDS = {
-    "pres": "pres2026",
-    "sec": "sec2026",
-    "com": "com2026",
-    "media": "media2026",
-    "acad": "acad2026",
-    "tres": "tres2026"
+    "Présidence": "pres2026",
+    "Secrétariat Général": "sec2026",
+    "Chef Communication": "com2026",
+    "Chef Média": "media2026",
+    "Chef Académique": "acad2026",
+    "Trésorier": "tres2026"
+}
+
+ROLE_POLE_MAP = {
+    "Présidence": "🏛️ PRÉSIDENCE",
+    "Secrétariat Général": "📋 SECRÉTARIAT",
+    "Chef Communication": "📢 COMMUNICATION",
+    "Chef Média": "🎬 MÉDIAS",
+    "Chef Académique": "📚 ACADÉMIQUE",
+    "Trésorier": "💶 TRÉSORERIE"
 }
 
 def charger_passwords():
@@ -45,16 +53,24 @@ def sauvegarder_password(role_key, nouveau_mdp):
     with open(PASSWORDS_FILE, "w", encoding="utf-8") as f:
         json.dump(pwds, f, ensure_ascii=False, indent=4)
 
-# -------------------------------------------------------------------
-# GESTION DU STOCKAGE DES PROPOSITIONS (CANAL GÉNÉRAL)
-# -------------------------------------------------------------------
+# Nettoyage automatique des propositions de plus de 24h
 def charger_propositions():
     if os.path.exists(PROPOSITIONS_FILE):
         with open(PROPOSITIONS_FILE, "r", encoding="utf-8") as f:
             try:
-                return json.load(f)
+                props = json.load(f)
             except json.JSONDecodeError:
-                return []
+                props = []
+                
+        # Filtrer pour garder uniquement les annonces de moins de 24h
+        maintenant = datetime.now()
+        props_valides = []
+        for p in props:
+            date_pub = datetime.strptime(p["date_raw"], "%Y-%m-%d %H:%M:%S")
+            if maintenant - date_pub < timedelta(hours=24):
+                props_valides.append(p)
+                
+        return props_valides
     return []
 
 def sauvegarder_proposition(nouvelle_prop):
@@ -69,29 +85,31 @@ def enregistrer_vote(prop_id, choix, auteur_vote):
         if p["id"] == prop_id:
             if "votes" not in p:
                 p["votes"] = {}
-            # Enregistre ou met à jour le vote unique de la personne
             p["votes"][auteur_vote] = choix
             break
     with open(PROPOSITIONS_FILE, "w", encoding="utf-8") as f:
         json.dump(props, f, ensure_ascii=False, indent=4)
 
 # -------------------------------------------------------------------
-# GESTION DE LA SÉCURITÉ ET DU TEMPS (EXPIRATION 10 MINUTES)
+# GESTION SÉCURITÉ SESSION (10 MINUTES D'INACTIVITÉ)
 # -------------------------------------------------------------------
-SESSION_TIMEOUT = 600  # 600 secondes = 10 minutes
+SESSION_TIMEOUT = 600
 
-def verifier_session(role_nom):
-    cle_temps = f"time_{role_nom}"
-    cle_auth = f"auth_{role_nom}"
-    
-    if cle_temps in str_app.session_state and cle_auth in str_app.session_state and str_app.session_state[cle_auth]:
-        ecoule = time.time() - str_app.session_state[cle_temps]
-        if ecoule > SESSION_TIMEOUT:
-            str_app.session_state[cle_auth] = False
-            str_app.warning("⏱️ Votre session a expiré (plus de 10 minutes d'inactivité). Veuillez ressaisir votre mot de passe.")
+if "logged_in_role" not in str_app.session_state:
+    str_app.session_state.logged_in_role = None
+if "last_activity" not in str_app.session_state:
+    str_app.session_state.last_activity = time.time()
+
+# Vérification expiration
+if str_app.session_state.logged_in_role:
+    if time.time() - str_app.session_state.last_activity > SESSION_TIMEOUT:
+        str_app.session_state.logged_in_role = None
+        str_app.warning("⏱️ Votre session a expiré après 10 minutes d'inactivité.")
+    else:
+        str_app.session_state.last_activity = time.time()
 
 # -------------------------------------------------------------------
-# DESIGN VERT KAKI ULTRA-LISIBLE (CSS CORRIGÉ & FORCÉ BLANC)
+# DESIGN & STYLING CSS ULTRA-CONTRASTÉ
 # -------------------------------------------------------------------
 str_app.markdown("""
 <style>
@@ -103,12 +121,11 @@ str_app.markdown("""
         font-family: 'Plus Jakarta Sans', sans-serif;
     }
 
-    /* Forcer TOUS les textes en blanc éclatant */
+    /* Forcer tous les textes et éléments de la sidebar en blanc éclatant */
     h1, h2, h3, h4, h5, h6, p, span, label, div, .stMarkdown, .stCaption, [data-testid="stSidebar"] * {
         color: #FFFFFF !important;
     }
 
-    /* Correction spécifique Sidebar pour un fond sombre et lisible */
     [data-testid="stSidebar"] {
         background-color: #1A241D !important;
         border-right: 1px solid #4A6B53;
@@ -127,7 +144,6 @@ str_app.markdown("""
         font-family: 'Playfair Display', serif;
         font-size: 2.2rem;
         font-weight: 700;
-        letter-spacing: -0.5px;
         color: #FFFFFF !important;
     }
 
@@ -140,16 +156,6 @@ str_app.markdown("""
         margin-top: 10px;
     }
 
-    .dashboard-card {
-        background: #2E3F33;
-        border: 1px solid #4A6B53;
-        border-top: 4px solid #A3B18B;
-        padding: 20px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        box-shadow: 0px 4px 12px rgba(0,0,0,0.3);
-    }
-    
     .prop-card {
         background: #2E3F33;
         border: 1px solid #4A6B53;
@@ -182,7 +188,7 @@ str_app.markdown("""
         border: 1px solid #4A6B53;
     }
 
-    /* Style des champs de saisie */
+    /* Champs de saisie */
     .stTextInput input, .stTextArea textarea {
         background-color: #2E3F33 !important;
         color: #FFFFFF !important;
@@ -215,25 +221,27 @@ with str_app.sidebar:
     str_app.markdown("""
     <div class="sidebar-brand">
         <h3 style="margin:0; color:#FFFFFF;">LE BARREAU</h3>
-        <p style="font-size:0.8rem; margin:5px 0 0 0; color:#FFFFFF;">Portail Exécutif Unifié</p>
+        <p style="font-size:0.8rem; margin:5px 0 0 0; color:#FFFFFF;">Portail Exécutif</p>
     </div>
     """, unsafe_allow_html=True)
     
     str_app.markdown("---")
-    str_app.markdown("### 📡 Canal Général")
-    str_app.markdown("Consultez et votez sur les propositions de chaque pôle en temps réel.")
+    if str_app.session_state.logged_in_role:
+        str_app.markdown(f"🟢 Connecté en tant que :\n**{str_app.session_state.logged_in_role}**")
+    else:
+        str_app.markdown("🔴 Aucun utilisateur connecté.")
     str_app.markdown("---")
-    str_app.markdown("### ⏱️ Sécurité Session")
-    str_app.markdown("Chaque session expire automatiquement après **10 minutes** d'inactivité.")
+    str_app.markdown("### ⏱️ Règle des 24h")
+    str_app.markdown("Toutes les annonces et votes expirent automatiquement après **24 heures**.")
     str_app.markdown("---")
-    str_app.markdown("© 2026 Le Barreau. Bureau Exécutif.")
+    str_app.caption("© 2026 Le Barreau. Bureau Exécutif.")
 
 # -------------------------------------------------------------------
 # EN-TÊTE PRINCIPAL
 # -------------------------------------------------------------------
 str_app.markdown(f"""
 <div class="top-nav">
-    <div class="brand-logo">PORTAIL EXÉCUTIF & CANAL GÉNÉRAL</div>
+    <div class="brand-logo">LE BARREAU — PORTAIL EXÉCUTIF</div>
     <div style="color: #FFFFFF; font-size: 0.95rem; font-weight: 600;">
         {datetime.now().strftime('%d %B %Y')}
     </div>
@@ -241,78 +249,40 @@ str_app.markdown(f"""
 """, unsafe_allow_html=True)
 
 # -------------------------------------------------------------------
-# LES 7 ONGLETS (6 PÔLES + 1 CANAL GÉNÉRAL)
+# LES 2 ONGLETS UNIQUES
 # -------------------------------------------------------------------
-tab_canal, tab_pres, tab_sec, tab_com, tab_media, tab_acad, tab_tres = str_app.tabs([
+tab_canal, tab_login = str_app.tabs([
     "🌐 Canal Général & Votes",
-    "🏛️ Présidence", 
-    "📋 Secrétariat", 
-    "📢 Communication", 
-    "🎬 Médias", 
-    "📚 Académique",
-    "💶 Trésorerie"
+    "🔑 Connexion & Publication"
 ])
 
 # ===================================================================
-# FONCTION DE CHANGEMENT DE MOT DE PASSE
-# ===================================================================
-def render_password_change_section(role_key, role_label):
-    passwords_actuels = charger_passwords()
-    with str_app.expander(f"🔑 Modifier mon mot de passe ({role_label})"):
-        with str_app.form(f"form_change_pwd_{role_key}"):
-            ancien = str_app.text_input("Ancien mot de passe :", type="password", key=f"old_{role_key}")
-            nouveau1 = str_app.text_input("Nouveau mot de passe :", type="password", key=f"new1_{role_key}")
-            nouveau2 = str_app.text_input("Confirmer le nouveau mot de passe :", type="password", key=f"new2_{role_key}")
-            btn_submit_pwd = str_app.form_submit_button("Mettre à jour le mot de passe")
-            
-            if btn_submit_pwd:
-                if ancien != passwords_actuels.get(role_key):
-                    str_app.error("L'ancien mot de passe est incorrect.")
-                elif not nouveau1:
-                    str_app.error("Le nouveau mot de passe ne peut pas être vide.")
-                elif nouveau1 != nouveau2:
-                    str_app.error("Les deux nouveaux mots de passe ne correspondent pas.")
-                else:
-                    sauvegarder_password(role_key, nouveau1)
-                    str_app.success("🎉 Mot de passe mis à jour avec succès !")
-
-# ===================================================================
-# 0. CANAL GÉNÉRAL & VOTES UNIQUES
+# 1. CANAL GÉNÉRAL & VOTES
 # ===================================================================
 with tab_canal:
-    str_app.markdown('<span class="badge-role">FIL COMMUN DU BUREAU</span>', unsafe_allow_html=True)
-    str_app.markdown('<div class="section-title">Canal Général de Validation</div>', unsafe_allow_html=True)
-    str_app.markdown("Retrouvez ici toutes les propositions émises par les différents pôles. Chaque membre dispose d'un **vote unique** par proposition.")
+    str_app.markdown('<span class="badge-role">FIL D\'ACTUALITÉ & COLLÉGIALITÉ</span>', unsafe_allow_html=True)
+    str_app.markdown('<div class="section-title">Canal Général des Annonces</div>', unsafe_allow_html=True)
+    str_app.markdown("Consultez les annonces de chaque pôle et votez (**un seul vote par utilisateur et par annonce**). Les publications disparaissent au bout de **24h**.")
     
     propositions = charger_propositions()
     
     if not propositions:
-        str_app.info("Aucune proposition active pour le moment. Chaque pôle peut en soumettre depuis son espace dédié.")
+        str_app.info("𭕡 Aucune annonce active pour le moment. Rendez-vous dans l'onglet *Connexion & Publication* pour en poster une.")
     else:
-        votant_nom = str_app.selectbox("Sélectionnez votre identité pour voter :", [
-            "Choisissez...", 
-            "Présidence", 
-            "Secrétariat Général", 
-            "Chef Communication", 
-            "Chef Média", 
-            "Chef Académique", 
-            "Trésorier"
-        ])
-        
         str_app.markdown("---")
-        
         for p in propositions:
             votes_actuels = p.get("votes", {})
+            
             str_app.markdown(f"""
             <div class="prop-card">
                 <span style="background: #1A241D; color: white; padding: 4px 10px; border-radius: 4px; font-size: 0.8rem; font-weight: bold;">{p['pole']}</span>
                 <h3 style="margin-top: 10px; font-family: 'Playfair Display', serif; color: #FFFFFF;">{p['titre']}</h3>
                 <p style="color: #FFFFFF; font-size: 1.05rem;">{p['contenu']}</p>
-                <p style="font-size: 0.85rem; color: #D8F3DC;">Publié par <b>{p['auteur']}</b> le {p['date']}</p>
+                <p style="font-size: 0.85rem; color: #D8F3DC;">Publié par <b>{p['auteur']}</b> le {p['date_aff']} (Expire dans moins de 24h)</p>
             </div>
             """, unsafe_allow_html=True)
             
-            str_app.markdown("📊 **Votes actuels :**")
+            str_app.markdown("📊 **Votes enregistrés :**")
             if votes_actuels:
                 cols_v = str_app.columns(max(len(votes_actuels), 1))
                 idx = 0
@@ -322,308 +292,112 @@ with tab_canal:
                         str_app.markdown(f"• **{pers}** : :{couleur}[{choix}]")
                     idx += 1
             else:
-                str_app.caption("Aucun vote enregistré pour l'instant.")
+                str_app.caption("Aucun vote pour l'instant.")
                 
-            if votant_nom != "Choisissez...":
-                # Vérifie si cette personne a déjà voté
-                deja_vote = votant_nom in votes_actuels
+            # SECTION VOTE INTERACTIVE
+            if str_app.session_state.logged_in_role:
+                user_actuel = str_app.session_state.logged_in_role
+                deja_vote = user_actuel in votes_actuels
+                
                 if deja_vote:
-                    str_app.info(f"✅ Vous avez déjà voté (**{votes_actuels[votant_nom]}**) pour cette proposition.")
+                    str_app.info(f"✅ Vous avez voté (**{votes_actuels[user_actuel]}**) avec votre profil ({user_actuel}).")
                 else:
                     c_v1, c_v2 = str_app.columns(2)
                     with c_v1:
-                        if str_app.button(f"✅ Voter POUR ({p['id']})", key=f"pour_{p['id']}_{votant_nom}"):
-                            enregistrer_vote(p['id'], "POUR", votant_nom)
-                            str_app.success("Votre vote 'POUR' a été pris en compte !")
+                        if str_app.button(f"✅ Voter POUR", key=f"pour_{p['id']}"):
+                            enregistrer_vote(p['id'], "POUR", user_actuel)
+                            str_app.success("Votre vote POUR a été enregistré !")
                             str_app.rerun()
                     with c_v2:
-                        if str_app.button(f"❌ Voter CONTRE ({p['id']})", key=f"contre_{p['id']}_{votant_nom}"):
-                            enregistrer_vote(p['id'], "CONTRE", votant_nom)
-                            str_app.warning("Votre vote 'CONTRE' a été pris en compte.")
+                        if str_app.button(f"❌ Voter CONTRE", key=f"contre_{p['id']}"):
+                            enregistrer_vote(p['id'], "CONTRE", user_actuel)
+                            str_app.warning("Votre vote CONTRE a été enregistré.")
                             str_app.rerun()
             else:
-                str_app.caption("⚠️ Veuillez sélectionner votre nom ci-dessus pour pouvoir voter.")
+                str_app.warning("🔒 Connectez-vous dans l'onglet **Connexion & Publication** pour pouvoir voter avec votre profil.")
                 
             str_app.markdown("---")
 
 # ===================================================================
-# 1. PRÉSIDENCE
+# 2. CONNEXION & PUBLICATION
 # ===================================================================
-with tab_pres:
-    verifier_session("pres")
-    str_app.markdown('<span class="badge-role">DIRECTION GÉNÉRALE</span>', unsafe_allow_html=True)
-    str_app.markdown('<div class="section-title">Espace Présidence</div>', unsafe_allow_html=True)
+with tab_login:
+    str_app.markdown('<span class="badge-role">ESPACE SÉCURISÉ DU MEMBRE</span>', unsafe_allow_html=True)
+    str_app.markdown('<div class="section-title">Connexion & Publication d\'Annonce</div>', unsafe_allow_html=True)
     
     passwords = charger_passwords()
-    pwd_pres = str_app.text_input("Mot de passe Présidence :", type="password", key="input_pres")
     
-    if pwd_pres == passwords["pres"]:
-        str_app.session_state["auth_pres"] = True
-        if "time_pres" not in str_app.session_state:
-            str_app.session_state["time_pres"] = time.time()
-            
-        str_app.success("Accès autorisé. Session active (10 minutes).")
+    if not str_app.session_state.logged_in_role:
+        str_app.write("Veuillez sélectionner votre rôle et saisir votre mot de passe pour accéder à votre espace de publication.")
         
-        if str_app.button("🔒 Verrouiller manuellement ma session Présidence", key="lock_pres"):
-            str_app.session_state["auth_pres"] = False
-            str_app.rerun()
+        with str_app.form("form_login"):
+            role_choisi = str_app.selectbox("Sélectionnez votre rôle :", list(DEFAUT_PASSWORDS.keys()))
+            mdp_saisi = str_app.text_input("Mot de passe :", type="password")
+            btn_login = str_app.form_submit_button("Se connecter")
             
-        str_app.markdown("---")
-        render_password_change_section("pres", "Présidence")
-        str_app.markdown("---")
+            if btn_login:
+                if mdp_saisi == passwords.get(role_choisi):
+                    str_app.session_state.logged_in_role = role_choisi
+                    str_app.session_state.last_activity = time.time()
+                    str_app.success(f"🎉 Connexion réussie en tant que {role_choisi} !")
+                    str_app.rerun()
+                else:
+                    str_app.error("❌ Mot de passe incorrect.")
+    else:
+        role_actif = str_app.session_state.logged_in_role
+        str_app.success(f"🟢 Vous êtes actuellement connecté en tant que : **{role_actif}**")
         
-        with str_app.form("form_prop_pres"):
-            str_app.subheader("📢 Soumettre une décision stratégique au Canal Général")
-            t_titre = str_app.text_input("Titre de la note ou directive")
-            t_contenu = str_app.text_area("Contenu de la proposition de la Présidence")
-            submit_p = str_app.form_submit_button("Diffuser au bureau")
-            
-            if submit_p and t_titre and t_contenu:
-                nouvelle = {
-                    "id": str(random.randint(1000, 9999)),
-                    "pole": "🏛️ PRÉSIDENCE",
-                    "auteur": "Présidence",
-                    "titre": t_titre,
-                    "contenu": t_contenu,
-                    "date": datetime.now().strftime("%d/%m/%Y à %H:%M"),
-                    "votes": {}
-                }
-                sauvegarder_proposition(nouvelle)
-                str_app.success("🎉 Note stratégique publiée sur le Canal Général !")
-    elif pwd_pres != "":
-        str_app.error("Mot de passe incorrect.")
-
-# ===================================================================
-# 2. SECRÉTARIAT GÉNÉRAL
-# ===================================================================
-with tab_sec:
-    verifier_session("sec")
-    str_app.markdown('<span class="badge-role">ADMINISTRATION & COMPTES-RENDUS</span>', unsafe_allow_html=True)
-    str_app.markdown('<div class="section-title">Espace Secrétariat Général</div>', unsafe_allow_html=True)
-    
-    passwords = charger_passwords()
-    pwd_sec = str_app.text_input("Mot de passe Secrétariat :", type="password", key="input_sec")
-    
-    if pwd_sec == passwords["sec"]:
-        str_app.session_state["auth_sec"] = True
-        if "time_sec" not in str_app.session_state:
-            str_app.session_state["time_sec"] = time.time()
-            
-        str_app.success("Accès autorisé. Session active (10 minutes).")
-        
-        if str_app.button("🔒 Verrouiller manuellement ma session Secrétariat", key="lock_sec"):
-            str_app.session_state["auth_sec"] = False
-            str_app.rerun()
-            
-        str_app.markdown("---")
-        render_password_change_section("sec", "Secrétariat Général")
+        # Bouton de déconnexion / verrouillage manuel
+        c_l1, c_l2 = str_app.columns(2)
+        with c_l1:
+            if str_app.button("🔒 Verrouiller / Se déconnecter manuellement"):
+                str_app.session_state.logged_in_role = None
+                str_app.rerun()
+                
         str_app.markdown("---")
         
-        with str_app.form("form_prop_sec"):
-            str_app.subheader("📋 Soumettre un PV / Rapport au Canal Général")
-            t_titre = str_app.text_input("Titre du Compte-Rendu ou Document")
-            t_contenu = str_app.text_area("Résumé ou détails du PV pour validation")
-            submit_s = str_app.form_submit_button("Diffuser au bureau")
-            
-            if submit_s and t_titre and t_contenu:
-                nouvelle = {
-                    "id": str(random.randint(1000, 9999)),
-                    "pole": "📋 SECRÉTARIAT",
-                    "auteur": "Secrétaire Général",
-                    "titre": t_titre,
-                    "contenu": t_contenu,
-                    "date": datetime.now().strftime("%d/%m/%Y à %H:%M"),
-                    "votes": {}
-                }
-                sauvegarder_proposition(nouvelle)
-                str_app.success("🎉 Document publié sur le Canal Général !")
-    elif pwd_sec != "":
-        str_app.error("Mot de passe incorrect.")
-
-# ===================================================================
-# 3. COMMUNICATION
-# ===================================================================
-with tab_com:
-    verifier_session("com")
-    str_app.markdown('<span class="badge-role">RELATIONS PUBLQUES & SOCIALES</span>', unsafe_allow_html=True)
-    str_app.markdown('<div class="section-title">Espace Chef Communication</div>', unsafe_allow_html=True)
-    
-    passwords = charger_passwords()
-    pwd_com = str_app.text_input("Mot de passe Communication :", type="password", key="input_com")
-    
-    if pwd_com == passwords["com"]:
-        str_app.session_state["auth_com"] = True
-        if "time_com" not in str_app.session_state:
-            str_app.session_state["time_com"] = time.time()
-            
-        str_app.success("Accès autorisé. Session active (10 minutes).")
+        # Formulaire de modification de mot de passe personnel
+        with str_app.expander("🔑 Modifier mon mot de passe"):
+            with str_app.form("form_change_pwd"):
+                ancien_p = str_app.text_input("Ancien mot de passe", type="password")
+                nouveau_p1 = str_app.text_input("Nouveau mot de passe", type="password")
+                nouveau_p2 = str_app.text_input("Confirmer le nouveau mot de passe", type="password")
+                btn_pwd = str_app.form_submit_button("Mettre à jour le mot de passe")
+                
+                if btn_pwd:
+                    if ancien_p != passwords.get(role_actif):
+                        str_app.error("L'ancien mot de passe est incorrect.")
+                    elif not nouveau_p1:
+                        str_app.error("Le mot de passe ne peut pas être vide.")
+                    elif nouveau_p1 != nouveau_p2:
+                        str_app.error("Les nouveaux mots de passe ne correspondent pas.")
+                    else:
+                        sauvegarder_password(role_actif, nouveau_p1)
+                        str_app.success("🎉 Mot de passe mis à jour avec succès !")
         
-        if str_app.button("🔒 Verrouiller manuellement ma session Communication", key="lock_com"):
-            str_app.session_state["auth_com"] = False
-            str_app.rerun()
-            
         str_app.markdown("---")
-        render_password_change_section("com", "Communication")
-        str_app.markdown("---")
+        str_app.markdown(f"### 📢 Publier une annonce au nom de votre pôle ({role_actif})")
+        str_app.write("Votre annonce sera immédiatement diffusée sur le Canal Général et visible pendant 24h.")
         
-        with str_app.form("form_prop_com"):
-            str_app.subheader("📢 Soumettre une légende / texte de com pour validation")
-            t_titre = str_app.text_input("Titre de la publication (ex: Post Instagram)")
-            t_contenu = str_app.text_area("Texte de communication / Légende proposée")
-            submit_c = str_app.form_submit_button("Soumettre au vote du bureau")
+        with str_app.form("form_pub_directe"):
+            titre_prop = str_app.text_input("Titre de l'annonce / projet / proposition")
+            contenu_prop = str_app.text_area("Contenu détaillé")
+            btn_pub = str_app.form_submit_button("Diffuser sur le Canal Général")
             
-            if submit_c and t_titre and t_contenu:
-                nouvelle = {
-                    "id": str(random.randint(1000, 9999)),
-                    "pole": "📢 COMMUNICATION",
-                    "auteur": "Chef Communication",
-                    "titre": t_titre,
-                    "contenu": t_contenu,
-                    "date": datetime.now().strftime("%d/%m/%Y à %H:%M"),
-                    "votes": {}
-                }
-                sauvegarder_proposition(nouvelle)
-                str_app.success("🎉 Texte de communication envoyé sur le Canal Général !")
-    elif pwd_com != "":
-        str_app.error("Mot de passe incorrect.")
-
-# ===================================================================
-# 4. MÉDIAS
-# ===================================================================
-with tab_media:
-    verifier_session("media")
-    str_app.markdown('<span class="badge-role">AUDIOVISUEL & GRAPHISME</span>', unsafe_allow_html=True)
-    str_app.markdown('<div class="section-title">Espace Chef Média</div>', unsafe_allow_html=True)
-    
-    passwords = charger_passwords()
-    pwd_media = str_app.text_input("Mot de passe Média :", type="password", key="input_media")
-    
-    if pwd_media == passwords["media"]:
-        str_app.session_state["auth_media"] = True
-        if "time_media" not in str_app.session_state:
-            str_app.session_state["time_media"] = time.time()
-            
-        str_app.success("Accès autorisé. Session active (10 minutes).")
-        
-        if str_app.button("🔒 Verrouiller manuellement ma session Média", key="lock_media"):
-            str_app.session_state["auth_media"] = False
-            str_app.rerun()
-            
-        str_app.markdown("---")
-        render_password_change_section("media", "Médias")
-        str_app.markdown("---")
-        
-        with str_app.form("form_prop_media"):
-            str_app.subheader("🎬 Partager des visuels / liens graphiques")
-            t_titre = str_app.text_input("Titre de l'affiche ou du visuel")
-            t_contenu = str_app.text_area("Lien Drive ou description des visuels validés")
-            submit_m = str_app.form_submit_button("Partager au bureau")
-            
-            if submit_m and t_titre and t_contenu:
-                nouvelle = {
-                    "id": str(random.randint(1000, 9999)),
-                    "pole": "🎬 MÉDIAS",
-                    "auteur": "Chef Média",
-                    "titre": t_titre,
-                    "contenu": t_contenu,
-                    "date": datetime.now().strftime("%d/%m/%Y à %H:%M"),
-                    "votes": {}
-                }
-                sauvegarder_proposition(nouvelle)
-                str_app.success("🎉 Visuels partagés sur le Canal Général !")
-    elif pwd_media != "":
-        str_app.error("Mot de passe incorrect.")
-
-# ===================================================================
-# 5. ACADÉMIQUE
-# ===================================================================
-with tab_acad:
-    verifier_session("acad")
-    str_app.markdown('<span class="badge-role">CONTENU JURIDIQUE & DÉBATS</span>', unsafe_allow_html=True)
-    str_app.markdown('<div class="section-title">Espace Chef Académique</div>', unsafe_allow_html=True)
-    
-    passwords = charger_passwords()
-    pwd_acad = str_app.text_input("Mot de passe Académique :", type="password", key="input_acad")
-    
-    if pwd_acad == passwords["acad"]:
-        str_app.session_state["auth_acad"] = True
-        if "time_acad" not in str_app.session_state:
-            str_app.session_state["time_acad"] = time.time()
-            
-        str_app.success("Accès autorisé. Session active (10 minutes).")
-        
-        if str_app.button("🔒 Verrouiller manuellement ma session Académique", key="lock_acad"):
-            str_app.session_state["auth_acad"] = False
-            str_app.rerun()
-            
-        str_app.markdown("---")
-        render_password_change_section("acad", "Académique")
-        str_app.markdown("---")
-        
-        with str_app.form("form_prop_acad"):
-            str_app.subheader("📚 Proposer un sujet de débat ou cas pratique")
-            t_titre = str_app.text_input("Intitulé du sujet juridique / débat")
-            t_contenu = str_app.text_area("Description et argumentaire de la ressource")
-            submit_a = str_app.form_submit_button("Soumettre au vote collégial")
-            
-            if submit_a and t_titre and t_contenu:
-                nouvelle = {
-                    "id": str(random.randint(1000, 9999)),
-                    "pole": "📚 ACADÉMIQUE",
-                    "auteur": "Chef Académique",
-                    "titre": t_titre,
-                    "contenu": t_contenu,
-                    "date": datetime.now().strftime("%d/%m/%Y à %H:%M"),
-                    "votes": {}
-                }
-                sauvegarder_proposition(nouvelle)
-                str_app.success("🎉 Sujet académique publié sur le Canal Général !")
-    elif pwd_acad != "":
-        str_app.error("Mot de passe incorrect.")
-
-# ===================================================================
-# 6. TRÉSORERIE
-# ===================================================================
-with tab_tres:
-    verifier_session("tres")
-    str_app.markdown('<span class="badge-role">FINANCES & BUDGET</span>', unsafe_allow_html=True)
-    str_app.markdown('<div class="section-title">Espace Trésorerie</div>', unsafe_allow_html=True)
-    
-    passwords = charger_passwords()
-    pwd_tres = str_app.text_input("Mot de passe Trésorerie :", type="password", key="input_tres")
-    
-    if pwd_tres == passwords["tres"]:
-        str_app.session_state["auth_tres"] = True
-        if "time_tres" not in str_app.session_state:
-            str_app.session_state["time_tres"] = time.time()
-            
-        str_app.success("Accès autorisé. Session active (10 minutes).")
-        
-        if str_app.button("🔒 Verrouiller manuellement ma session Trésorerie", key="lock_tres"):
-            str_app.session_state["auth_tres"] = False
-            str_app.rerun()
-            
-        str_app.markdown("---")
-        render_password_change_section("tres", "Trésorerie")
-        str_app.markdown("---")
-        
-        with str_app.form("form_prop_tres"):
-            str_app.subheader("💶 Soumettre une note de frais ou un budget au bureau")
-            t_titre = str_app.text_input("Objet de la dépense / demande budgétaire")
-            t_contenu = str_app.text_area("Détails financiers et montant estimé")
-            submit_t = str_app.form_submit_button("Soumettre pour validation")
-            
-            if submit_t and t_titre and t_contenu:
-                nouvelle = {
-                    "id": str(random.randint(1000, 9999)),
-                    "pole": "💶 TRÉSORERIE",
-                    "auteur": "Trésorier",
-                    "titre": t_titre,
-                    "contenu": t_contenu,
-                    "date": datetime.now().strftime("%d/%m/%Y à %H:%M"),
-                    "votes": {}
-                }
-                sauvegarder_proposition(nouvelle)
-                str_app.success("🎉 Note financière publiée sur le Canal Général !")
-    elif pwd_tres != "":
-        str_app.error("Mot de passe incorrect.")
+            if btn_pub:
+                if not titre_prop or not contenu_prop:
+                    str_app.error("Veuillez remplir tous les champs.")
+                else:
+                     maintenant_dt = datetime.now()
+                     nouvelle = {
+                        "id": str(int(time.time() * 1000)),
+                        "pole": ROLE_POLE_MAP.get(role_actif, "📄 BUREAU"),
+                        "auteur": role_actif,
+                        "titre": titre_prop,
+                        "contenu": contenu_prop,
+                        "date_raw": maintenant_dt.strftime("%Y-%m-%d %H:%M:%S"),
+                        "date_aff": maintenant_dt.strftime("%d/%m/%Y à %H:%M"),
+                        "votes": {}
+                    }
+                     sauvegarder_proposition(nouvelle)
+                     str_app.success("🎉 Annonce publiée avec succès ! Rendez-vous sur l'onglet 'Canal Général & Votes'.")
