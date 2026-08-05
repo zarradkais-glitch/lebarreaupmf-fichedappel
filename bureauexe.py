@@ -536,4 +536,3 @@ with tab_tres:
         render_password_change_section("tres", "Trésorerie")
     elif pwd_tres != "":
         str_app.error("Mot de passe incorrect.")
-    
