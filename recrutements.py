@@ -295,7 +295,7 @@ with tab_bureau:
             mod_cand = next(c for c in st.session_state.database if c["name"] == mod_cand_name)
             
             with st.form("form_edit_candidate"):
-                new_team = st.selectbox("Équipe", ["POUR", "CONTRE"], index=0 if mod_cand["team"] == "POUR" else 1)
+                new_team = st.selectbox("Équipe", ["Oui...", "Non..."], index=0 if mod_cand["team"] == "Oui..." else 1)
                 new_session = st.selectbox("Session", ["Session 1", "Session 2"], index=0 if mod_cand["session"] == "Session 1" else 1)
                 
                 submitted_mod = st.form_submit_button("Mettre à jour les informations")
