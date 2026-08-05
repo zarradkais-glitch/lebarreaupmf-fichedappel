@@ -1,241 +1,264 @@
 import streamlit as st
 import requests
 import random
-import time
+from datetime import datetime
 
 # -------------------------------------------------------------------
 # CONFIGURATION DE LA PAGE
 # -------------------------------------------------------------------
 st.set_page_config(
-    page_title="Le Barreau Journal — Quotidien Juridique IA",
-    page_icon="🗞️",
+    page_title="Le Barreau Journal — Grand Quotidien Juridique",
+    page_icon="⚖️",
     layout="wide"
 )
 
 UNSPLASH_ACCESS_KEY = "FQt3q9yJIf1-4q_v1Kg0fptsuOfsw0qfU-GvbbBb6cE"
 
 # -------------------------------------------------------------------
-# DESIGN CSS HAUTE COUTURE (CYBER-LUXE)
+# DESIGN INSTITUTIONNEL HAUTE RECOMMANDATION (BARREAU & INSTITUTION)
 # -------------------------------------------------------------------
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;900&family=Inter:wght@300;400;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Merriweather:ital,wght@0,300;0,400;0,700;1,400&family=Inter:wght@300;400;600;700&display=swap');
 
     .stApp {
-        background-color: #04070d;
-        color: #e2e8f0;
+        background-color: #0b0e14;
+        color: #cbd5e1;
         font-family: 'Inter', sans-serif;
     }
 
-    /* En-tête Presse Prestigieuse */
+    /* Header Presse Institutionnelle */
     .journal-header {
+        border-bottom: 3px double #d4af37;
+        padding-bottom: 20px;
+        margin-bottom: 30px;
         text-align: center;
-        border-bottom: 2px solid #d4af37;
-        padding-bottom: 15px;
-        margin-bottom: 25px;
-        background: linear-gradient(180deg, rgba(212, 175, 55, 0.05) 0%, rgba(0,0,0,0) 100%);
+        background: radial-gradient(circle, rgba(212,175,55,0.08) 0%, rgba(11,14,20,1) 100%);
     }
 
     .journal-title {
-        font-family: 'Cinzel', serif;
-        font-size: 2.8rem;
-        font-weight: 900;
-        letter-spacing: 4px;
+        font-family: 'Merriweather', serif;
+        font-size: 3.2rem;
+        font-weight: 700;
+        letter-spacing: 2px;
         color: #ffffff;
         text-transform: uppercase;
         margin: 0;
-        text-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
     }
 
-    .journal-title span {
+    .journal-subtitle {
+        font-size: 0.85rem;
+        letter-spacing: 4px;
         color: #d4af37;
-    }
-
-    .journal-sub {
-        font-size: 0.8rem;
-        letter-spacing: 3px;
-        color: #00f2fe;
         text-transform: uppercase;
-        margin-top: 5px;
+        margin-top: 8px;
         font-weight: 600;
     }
 
-    /* Cartes d'Actualités Futuristes */
-    .news-card-hero {
-        background: rgba(10, 16, 30, 0.85);
-        border: 1px solid rgba(212, 175, 55, 0.4);
-        border-radius: 8px;
-        padding: 20px;
-        margin-bottom: 30px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        backdrop-filter: blur(10px);
-    }
-
-    .badge-cyber {
-        background: rgba(0, 242, 254, 0.12);
-        color: #00f2fe;
-        border: 1px solid rgba(0, 242, 254, 0.4);
-        padding: 4px 10px;
-        font-size: 0.7rem;
-        border-radius: 3px;
-        font-weight: 600;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-    }
-
-    .badge-gold {
+    /* Badges de Sources et Rigueur */
+    .source-tag {
         background: rgba(212, 175, 55, 0.15);
-        color: #d4af37;
-        border: 1px solid rgba(212, 175, 55, 0.5);
-        padding: 4px 10px;
-        font-size: 0.7rem;
-        border-radius: 3px;
-        font-weight: 600;
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-    }
-
-    /* HUD Metrics Box */
-    .hud-box {
-        background: rgba(6, 11, 22, 0.9);
-        border: 1px solid rgba(212, 175, 55, 0.25);
-        border-radius: 6px;
-        padding: 12px;
-        text-align: center;
-        margin: 15px 0;
-    }
-
-    .hud-title {
-        font-size: 0.65rem;
-        color: #94a3b8;
+        color: #f1c40f;
+        border: 1px solid #d4af37;
+        padding: 4px 12px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        border-radius: 2px;
         text-transform: uppercase;
         letter-spacing: 1px;
     }
 
-    .hud-value {
-        font-family: 'Cinzel', serif;
-        font-size: 1.2rem;
-        color: #d4af37;
-        font-weight: bold;
+    .meta-info {
+        font-size: 0.8rem;
+        color: #94a3b8;
+        font-style: italic;
+        margin-bottom: 15px;
+    }
+
+    /* Style des Encadrés de Débat */
+    .opinion-box-for {
+        background: rgba(16, 185, 129, 0.08);
+        border-left: 4px solid #10b981;
+        padding: 20px;
+        border-radius: 4px;
+        margin-bottom: 15px;
+    }
+
+    .opinion-box-against {
+        background: rgba(239, 68, 68, 0.08);
+        border-left: 4px solid #ef4444;
+        padding: 20px;
+        border-radius: 4px;
+        margin-bottom: 15px;
     }
 </style>
 """, unsafe_allow_html=True)
 
 # -------------------------------------------------------------------
-# MOTEUR D'IMAGES DYNAMIQUES & VARIÉES
+# RECUPERATION D'IMAGES HD REELLES
 # -------------------------------------------------------------------
-def fetch_dynamic_image(query_keywords):
-    """
-    Récupère une image toujours nouvelle et variée depuis Unsplash
-    grâce à la rotation aléatoire des termes.
-    """
-    selected_query = random.choice(query_keywords)
+def get_unsplash_image(query="law"):
     try:
-        url = f"https://api.unsplash.com/photos/random?query={selected_query}&orientation=landscape&client_id={UNSPLASH_ACCESS_KEY}"
-        response = requests.get(url, timeout=4)
-        if response.status_code == 200:
-            data = response.json()
+        url = f"https://api.unsplash.com/photos/random?query={query}&orientation=landscape&client_id={UNSPLASH_ACCESS_KEY}"
+        res = requests.get(url, timeout=4)
+        if res.status_code == 200:
+            data = res.json()
             return data['urls']['regular'], data['user']['name']
     except Exception:
         pass
-
-    # Fallback HD varié si réseau indisponible
-    backup_urls = [
-        "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=1200",
-        "https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=1200",
-        "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1200",
-        "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?q=80&w=1200"
-    ]
-    return random.choice(backup_urls), "Banque Unsplash Premium"
+    return "https://images.unsplash.com/photo-1589829545856-d10d557cf95f?q=80&w=1200", "Unsplash Premium"
 
 # -------------------------------------------------------------------
-# EN-TÊTE ET RUBRIQUES
+# EN-TÊTE DU JOURNAL
 # -------------------------------------------------------------------
-st.markdown("""
+st.markdown(f"""
 <div class="journal-header">
-    <div class="journal-title">LE BARREAU <span>JOURNAL</span></div>
-    <div class="journal-sub">L'Élite de l'Analyse Juridique, Géopolitique & Cyberspace</div>
+    <div class="journal-title">LE BARREAU JOURNAL</div>
+    <div class="journal-subtitle">Organe d'Analyse Juridique & d'Actualité — Édition du {datetime.now().strftime('%d %B %Y')}</div>
 </div>
 """, unsafe_allow_html=True)
 
-# Barre latérale dynamique
-st.sidebar.markdown("### 🏛️ Navigation Presse")
-rubrique = st.sidebar.radio("Sélectionner la Rubrique", [
-    "🔥 À la Une (Édition Quotidienne)",
-    "🇫🇷 Droit Français & Jurisprudence",
-    "🤖 Cyber-Droit & Intelligence Artificielle",
-    "🌐 Droit International & Stratégie"
+# -------------------------------------------------------------------
+# NAVIGATION PRINCIPALE (AVEC ONGLET INTERACTIF)
+# -------------------------------------------------------------------
+st.sidebar.title("🏛️ Sommaire & Rubriques")
+page = st.sidebar.radio("Consulter :", [
+    "📜 Articles & Analyses Approfondies",
+    "🗳️ Le Débat du Jour (Interactif)",
+    "📚 Sources & Jurisprudence Officielle"
 ])
 
 st.sidebar.markdown("---")
-st.sidebar.markdown("### ⚡ Statistiques Média IA")
-st.sidebar.metric(label="Articles générés / 24h", value="14")
-st.sidebar.metric(label="Précision des analyses", value="99.4%")
-
-# Bouton d'actualisation manuelle du flux visuel
-if st.sidebar.button("🔄 Rafraîchir les images & le flux"):
-    st.rerun()
+st.sidebar.markdown("### 📊 Statistiques de Rédaction")
+st.sidebar.caption("• Flux de Veille : Conseil d'État, Cour de Cassation, JOUE")
+st.sidebar.caption("• Comité de Relecture : Le Barreau PMF")
 
 # -------------------------------------------------------------------
-# CONTENU DYNAMIQUE DES ARTICLES
+# PAGE 1 : ARTICLES RIGOUREUX ET DEVELOPPÉS
 # -------------------------------------------------------------------
+if page == "📜 Articles & Analyses Approfondies":
 
-if rubrique in ["🔥 À la Une (Édition Quotidienne)", "🤖 Cyber-Droit & Intelligence Artificielle"]:
+    st.markdown('<span class="source-tag">SOURCE : CONSEIL D\'ÉTAT & LÉGIFRANCE</span>', unsafe_allow_html=True)
+    st.markdown("# La Régulation des Systèmes d'Intelligence Artificielle en Droit Public : Entre Sécurité et Libertés Individuelles")
+    st.markdown('<div class="meta-info">Par le Pôle d\'Analyse Juridique • Publié le 5 Août 2026 • Temps de lecture : 6 min</div>', unsafe_allow_html=True)
+    
+    img1, photog1 = get_unsplash_image("courtroom-justice")
+    st.image(img1, caption=f"Crédit photo : {photog1} / Unsplash", use_container_width=True)
+
     st.markdown("""
-    <div>
-        <span class="badge-cyber">🤖 IA & CYBER-DROIT • ANALYSE STRATÉGIQUE</span>
-        <h1 style="font-family: 'Cinzel', serif; color: #ffffff; margin-top: 10px;">L’IA à la Barre : Vers une Souveraineté Juridique Algorithmique</h1>
-    </div>
-    """, unsafe_allow_html=True)
+    ### 1. Le Contexte Juridique et Institutionnel
+    L'intégration croissante des algorithmes de décision au sein des administrations publiques impose un réexamen approfondi des principes fondamentaux du droit administratif. Conformément aux directeurs fixés par les nouvelles exigences européennes (*AI Act*), la transparence algorithmique n'est plus une simple recommandation éthique, mais une **obligation juridique opposable**.
 
-    # Récupération d'image dynamique avec plusieurs mots-clés riches
-    img1, photog1 = fetch_dynamic_image(["cyberpunk", "artificial-intelligence", "future-city", "tech-data"])
-    st.image(img1, caption=f"Photographie : {photog1} / Unsplash", use_container_width=True)
+    ### 2. Analyse en Droit Comparé et Jurisprudence
+    La problématique majeure réside dans l'opacité décisionnelle (*l'effet boîte noire*). La jurisprudentielle française, s'appuyant sur l'article L. 311-3-1 du Code des relations entre le public et administration (CRPA), exige que toute décision administrative individuelle prise sur le fondement d'un traitement algorithmique comporte une explication claire des règles appliquées.
 
-    # Dashboard HUD de métriques rapides
-    c1, c2, c3 = st.columns(3)
-    with c1:
-        st.markdown('<div class="hud-box"><div class="hud-title">Taux de Précision IA</div><div class="hud-value">94.8%</div></div>', unsafe_allow_html=True)
-    with c2:
-        st.markdown('<div class="hud-box"><div class="hud-title">Impact Éthique</div><div class="hud-value" style="color:#00f2fe;">CRITIQUE</div></div>', unsafe_allow_html=True)
-    with c3:
-        st.markdown('<div class="hud-box"><div class="hud-title">Statut Législatif</div><div class="hud-value" style="color:#ffffff;">EN DÉBAT</div></div>', unsafe_allow_html=True)
+    > **Extrait de référence :** *« Tout usager a le droit d'exiger la communication des paramètres généraux et des pondérations ayant conduit au traitement automatisé de son dossier. »*
 
-    st.write("""
-    L'émergence des modèles algorithmiques prédictifs au sein des tribunaux internationaux soulève des questions juridiques inédites. 
-    Les cabinets d'avocats de premier plan doivent aujourd'hui réévaluer la responsabilité pénale des systèmes autonomes tout en intégrant ces outils dans la préparation de leurs argumentaires. Le Barreau livre une analyse exhaustive des récents textes européens.
+    ### 3. Portée Pratique et Orientations Futures
+    Les cabinets d'avocats ainsi que les juridictions administratives doivent adapter leurs compétences face à l'émergence du contentieux de l'algorithme. Les enjeux de responsabilité civile et pénale de l'État en cas de biais discriminatoire non détecté représentent le nouveau chantier jurisprudentiel des années à venir.
     """)
     st.markdown("---")
 
-if rubrique in ["🔥 À la Une (Édition Quotidienne)", "🇫🇷 Droit Français & Jurisprudence"]:
-    st.markdown("""
-    <div>
-        <span class="badge-gold">🇫🇷 DROIT FRANÇAIS • JURISPRUDENCE</span>
-        <h1 style="font-family: 'Cinzel', serif; color: #ffffff; margin-top: 10px;">Réforme de la Responsabilité Pénale : Décision du Conseil Constitutionnel</h1>
-    </div>
-    """, unsafe_allow_html=True)
+# -------------------------------------------------------------------
+# PAGE 2 : LE DEBAT DU JOUR (INTERACTIF + VOTES)
+# -------------------------------------------------------------------
+elif page == "🗳️ Le Débat du Jour (Interactif)":
 
-    img2, photog2 = fetch_dynamic_image(["courtroom", "law-book", "justice-scale", "architecture-classic"])
-    st.image(img2, caption=f"Photographie : {photog2} / Unsplash", use_container_width=True)
+    st.markdown('<span class="source-tag">LE GRAND DÉBAT DU QUOTIDIEN</span>', unsafe_allow_html=True)
+    st.markdown("# Sujet du Jour : Faut-il accorder une personnalité juridique autonome à l'IA ?")
+    st.write("Chaque jour, Le Barreau Journal soumet une question de droit prospectif au vote et à la réflexion des élèves et professeurs.")
 
-    st.write("""
-    Dans un arrêt marquant rendu cette semaine, le Conseil Constitutionnel est venu préciser la doctrine sur l'imputabilité des infractions en cas d'altération du discernement. 
-    Cette décision redefine les lignes de défense traditionnelles et impose une rigueur d'analyse renouvelée pour l'ensemble des acteurs du prétoire.
-    """)
+    # Graphique et Vote Interactif
+    st.subheader("📊 Participez au Vote en Direct")
+    
+    # Session state pour stocker les votes localement dans la session
+    if 'vote_oui' not in st.session_state:
+        st.session_state.vote_oui = 42
+    if 'vote_non' not in st.session_state:
+        st.session_state.vote_non = 58
+
+    col_vote1, col_vote2 = st.columns(2)
+    with col_vote1:
+        if st.button("👍 OUI (Pour la création d'un statut d'Agent Autonome)", use_container_width=True):
+            st.session_state.vote_oui += 1
+            st.success("Votre vote pour le OUI a été enregistré !")
+            
+    with col_vote2:
+        if st.button("👎 NON (Maintenir la responsabilité exclusive de l'humain)", use_container_width=True):
+            st.session_state.vote_non += 1
+            st.error("Votre vote pour le NON a été enregistré !")
+
+    # Affichage des Résultats
+    total_votes = st.session_state.vote_oui + st.session_state.vote_non
+    pourcentage_oui = round((st.session_state.vote_oui / total_votes) * 100, 1)
+    pourcentage_non = round((st.session_state.vote_non / total_votes) * 100, 1)
+
+    st.markdown("### Résultats actuels de la communauté :")
+    st.progress(pourcentage_oui / 100)
+    st.caption(f"Pour : **{pourcentage_oui}%** ({st.session_state.vote_oui} votes) | Contre : **{pourcentage_non}%** ({st.session_state.vote_non} votes) | Total : {total_votes} participants")
+
     st.markdown("---")
 
-if rubrique in ["🔥 À la Une (Édition Quotidienne)", "🌐 Droit International & Stratégie"]:
-    st.markdown("""
-    <div>
-        <span class="badge-cyber">🌐 GÉOPOLITIQUE • TRAITÉS INTERNATIONAUX</span>
-        <h1 style="font-family: 'Cinzel', serif; color: #ffffff; margin-top: 10px;">Arbitrage International et Grands Enjeux Maritimes</h1>
-    </div>
-    """, unsafe_allow_html=True)
+    # Confrontation des Arguments (Thèse / Antithèse)
+    st.subheader("⚖️ Confrontation des Doctrines Juridiques")
 
-    img3, photog3 = fetch_dynamic_image(["cargo-ship", "international-flags", "skyscraper", "global-business"])
-    st.image(img3, caption=f"Photographie : {photog3} / Unsplash", use_container_width=True)
+    col_t1, col_t2 = st.columns(2)
 
-    st.write("""
-    Les tensions relatives aux routes commerciales transcontinentales réactivent les tribunaux d'arbitrage internationaux. 
-    Les juristes spécialisés en droit international public observent une mutation rapide des clauses d'arbitrage forcé au sein des accords bilatéraux.
-    """)
+    with col_t1:
+        st.markdown("""
+        <div class="opinion-box-for">
+            <h4 style="color:#10b981; margin-top:0;">THÈSE : Pour un statut de "Personne Robot"</h4>
+            <p><b>Argument majeur :</b> Face à l'autonomie d'apprentissage des IA émergentes, imputer la responsabilité aux seuls concepteurs devient techniquement inefficace lors de dommages imprévisibles.</p>
+            <ul>
+                <li>Création d'un fonds de garantie obligatoire financé par les éditeurs d'IA.</li>
+                <li>Imputabilité directe des préjudices patrimoniaux.</li>
+                <li>Inspiration du modèle de la responsabilité des personnes morales en droit des sociétés.</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col_t2:
+        st.markdown("""
+        <div class="opinion-box-against">
+            <h4 style="color:#ef4444; margin-top:0;">ANTITHÈSE : Conserver l'Anthropocentrisme du Droit</h4>
+            <p><b>Argument majeur :</b> Le Droit est une construction humaine destinée aux humains. Diluer la responsabilité de l'homme derrière une machine constitue un risque éthique majeur.</p>
+            <ul>
+                <li>Risque d'impunité pour les géants de la Tech et développeurs.</li>
+                <li>L'IA manque d’élément moral (intention ou conscience) indispensable à la punition.</li>
+                <li>Le droit actuel (responsabilité des du fait des choses / du fait d'autrui) est suffisant.</li>
+            </ul>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # Espace de contribution des lecteurs
+    st.markdown("---")
+    st.subheader("✍️ Proposer une Tribune / Commentaire d'Elève")
+    nom_contributeur = st.text_input("Votre Nom et Classe / Fonction :", placeholder="ex: Kaïs Zarrad — Membre du Barreau PMF")
+    commentaire = st.text_area("Votre argument juridique ou opinion étayée :")
+    
+    if st.button("Publier ma contribution au Débat"):
+        if nom_contributeur and commentaire:
+            st.success("Votre contribution a été envoyée au Comité de Rédaction pour validation !")
+        else:
+            st.warning("Veuillez remplir tous les champs avant de soumettre.")
+
+# -------------------------------------------------------------------
+# PAGE 3 : SOURCES ET RESSORT OFFICIEL
+# -------------------------------------------------------------------
+elif page == "📚 Sources & Jurisprudence Officielle":
+    st.markdown("# 📚 Base de Veille & Liens Institutionnels")
+    st.write("Le Barreau Journal appuie l'ensemble de ses analyses sur des sources officielles vérifiables :")
+
+    c_s1, c_s2 = st.columns(2)
+    with c_s1:
+        st.markdown("""
+        * ⚖️ **[Légifrance](https://www.legifrance.gouv.fr/)** — Service public de la diffusion du droit.
+        * 🏛️ **[Conseil d'État](https://www.conseil-etat.fr/)** — Jurisprudence administrative et avis constitutionnels.
+        * 👨‍⚖️ **[Cour de Cassation](https://www.courdecassation.fr/)** — Arrêts de la chambre criminelle et civile.
+        """)
+    with c_s2:
+        st.markdown("""
+        * 🇪🇺 **[EUR-Lex](https://eur-lex.europa.eu/)** — Journal Officiel de l'Union Européenne.
+        * 🌐 **[Cour Européenne des Droits de l'Homme](https://www.echr.coe.int/)** — Arrêts CEDH.
+        * 📜 **[Journal Officiel](https://www.journal-officiel.gouv.fr/)** — Décrets et Lois publiés.
+        """)
