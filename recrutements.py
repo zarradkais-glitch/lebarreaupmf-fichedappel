@@ -1,3 +1,14 @@
+import streamlit as st
+
+# Configuration de la page
+st.set_page_config(
+    page_title="Espace Candidat | Le Barreau - PMF",
+    page_icon="⚖️",
+    layout="centered"
+)
+
+# Code HTML/CSS complet injecté via st.markdown
+html_code = """
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -78,8 +89,6 @@
             transition: var(--transition);
         }
 
-        /* Formulaire d'accès */
-        #login-section text-align: center; }
         .input-group {
             margin-bottom: 25px;
             text-align: left;
@@ -136,7 +145,6 @@
             display: none;
         }
 
-        /* Tableau de bord candidat */
         #dashboard-section {
             display: none;
         }
@@ -269,6 +277,7 @@
             color: var(--text-muted);
             font-size: 0.8rem;
             border-top: 1px solid var(--card-border);
+            margin-top: 40px;
         }
     </style>
 </head>
@@ -346,51 +355,48 @@
     </footer>
 
     <script>
-        // Base de données des candidats intégrée
         const database = [
-            // Session 1 : Le Droit International
-            { name: "Mehdi Besbes", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h[cite: 3]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 3]", judges: "Kaïs Zarrad et Adam Chtourou[cite: 3]", docName: "Background Guide - Droit International", docUrl: "#" },
-            { name: "Yasmine Ben Ali", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h[cite: 3]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 3]", judges: "Kaïs Zarrad et Adam Chtourou[cite: 3]", docName: "Background Guide - Droit International", docUrl: "#" },
-            { name: "Yessine Bouchoucha", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h[cite: 3]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 3]", judges: "Kaïs Zarrad et Adam Chtourou[cite: 3]", docName: "Background Guide - Droit International", docUrl: "#" },
-            { name: "Lydia Meddeb", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h[cite: 3]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 3]", judges: "Kaïs Zarrad et Adam Chtourou[cite: 3]", docName: "Background Guide - Droit International", docUrl: "#" },
-            { name: "Kenza Smat", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h[cite: 3]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 3]", judges: "Kaïs Zarrad et Adam Chtourou[cite: 3]", docName: "Background Guide - Droit International", docUrl: "#" },
-            { name: "Yasmine Oudi", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h[cite: 3]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 3]", judges: "Kaïs Zarrad et Adam Chtourou[cite: 3]", docName: "Background Guide - Droit International", docUrl: "#" },
-            { name: "Rahma Snoussi", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h[cite: 3]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 3]", judges: "Kaïs Zarrad et Adam Chtourou[cite: 3]", docName: "Background Guide - Droit International", docUrl: "#" },
-            { name: "Selim Darghouth", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h[cite: 3]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 3]", judges: "Kaïs Zarrad et Adam Chtourou[cite: 3]", docName: "Background Guide - Droit International", docUrl: "#" },
-            { name: "Farah El Asmi", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h[cite: 3]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 3]", judges: "Kaïs Zarrad et Adam Chtourou[cite: 3]", docName: "Background Guide - Droit International", docUrl: "#" },
-            { name: "Nermine Maya Adhoum", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h[cite: 3]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 3]", judges: "Kaïs Zarrad et Adam Chtourou[cite: 3]", docName: "Background Guide - Droit International", docUrl: "#" },
-            { name: "Zyne Zampol", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h[cite: 3]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 3]", judges: "Kaïs Zarrad et Adam Chtourou[cite: 3]", docName: "Background Guide - Droit International", docUrl: "#" },
-            { name: "Yassine Albouchi", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h[cite: 3]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 3]", judges: "Kaïs Zarrad et Adam Chtourou[cite: 3]", docName: "Background Guide - Droit International", docUrl: "#" },
-            { name: "Ines Ben Naceur", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h[cite: 3]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 3]", judges: "Kaïs Zarrad et Adam Chtourou[cite: 3]", docName: "Background Guide - Droit International", docUrl: "#" },
-            { name: "Farah Alaya", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h[cite: 3]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 3]", judges: "Kaïs Zarrad et Adam Chtourou[cite: 3]", docName: "Background Guide - Droit International", docUrl: "#" },
-            { name: "Sohane Wawrzynowski", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h[cite: 3]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 3]", judges: "Kaïs Zarrad et Adam Chtourou[cite: 3]", docName: "Background Guide - Droit International", docUrl: "#" },
-            { name: "Sarra Chaouch", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h[cite: 3]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 3]", judges: "Kaïs Zarrad et Adam Chtourou[cite: 3]", docName: "Background Guide - Droit International", docUrl: "#" },
-            { name: "Baya Hadj Ali", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h[cite: 3]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 3]", judges: "Kaïs Zarrad et Adam Chtourou[cite: 3]", docName: "Background Guide - Droit International", docUrl: "#" },
+            { name: "Mehdi Besbes", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Kaïs Zarrad et Adam Chtourou", docName: "Background Guide - Droit International", docUrl: "#" },
+            { name: "Yasmine Ben Ali", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Kaïs Zarrad et Adam Chtourou", docName: "Background Guide - Droit International", docUrl: "#" },
+            { name: "Yessine Bouchoucha", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Kaïs Zarrad et Adam Chtourou", docName: "Background Guide - Droit International", docUrl: "#" },
+            { name: "Lydia Meddeb", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Kaïs Zarrad et Adam Chtourou", docName: "Background Guide - Droit International", docUrl: "#" },
+            { name: "Kenza Smat", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Kaïs Zarrad et Adam Chtourou", docName: "Background Guide - Droit International", docUrl: "#" },
+            { name: "Yasmine Oudi", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Kaïs Zarrad et Adam Chtourou", docName: "Background Guide - Droit International", docUrl: "#" },
+            { name: "Rahma Snoussi", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Kaïs Zarrad et Adam Chtourou", docName: "Background Guide - Droit International", docUrl: "#" },
+            { name: "Selim Darghouth", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Kaïs Zarrad et Adam Chtourou", docName: "Background Guide - Droit International", docUrl: "#" },
+            { name: "Farah El Asmi", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Kaïs Zarrad et Adam Chtourou", docName: "Background Guide - Droit International", docUrl: "#" },
+            { name: "Nermine Maya Adhoum", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Kaïs Zarrad et Adam Chtourou", docName: "Background Guide - Droit International", docUrl: "#" },
+            { name: "Zyne Zampol", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Kaïs Zarrad et Adam Chtourou", docName: "Background Guide - Droit International", docUrl: "#" },
+            { name: "Yassine Albouchi", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Kaïs Zarrad et Adam Chtourou", docName: "Background Guide - Droit International", docUrl: "#" },
+            { name: "Ines Ben Naceur", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Kaïs Zarrad et Adam Chtourou", docName: "Background Guide - Droit International", docUrl: "#" },
+            { name: "Farah Alaya", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Kaïs Zarrad et Adam Chtourou", docName: "Background Guide - Droit International", docUrl: "#" },
+            { name: "Sohane Wawrzynowski", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Kaïs Zarrad et Adam Chtourou", docName: "Background Guide - Droit International", docUrl: "#" },
+            { name: "Sarra Chaouch", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Kaïs Zarrad et Adam Chtourou", docName: "Background Guide - Droit International", docUrl: "#" },
+            { name: "Baya Hadj Ali", session: "Session 1", topic: "Est-ce que le droit international est encore légitime de nos jours ?", date: "Mercredi 9 septembre de 15h à 16h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Kaïs Zarrad et Adam Chtourou", docName: "Background Guide - Droit International", docUrl: "#" },
 
-            // Session 2 : La Liberté d'Expression
-            { name: "Mehdi Zenkri", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h[cite: 4]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 4]", judges: "Sarra Ben Mahmoud et Mayara Hamaoui[cite: 4]", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
-            { name: "Tasnim Louati", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h[cite: 4]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 4]", judges: "Sarra Ben Mahmoud et Mayara Hamaoui[cite: 4]", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
-            { name: "Farah Borgi", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h[cite: 4]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 4]", judges: "Sarra Ben Mahmoud et Mayara Hamaoui[cite: 4]", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
-            { name: "Bechir El Ouadhane", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h[cite: 4]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 4]", judges: "Sarra Ben Mahmoud et Mayara Hamaoui[cite: 4]", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
-            { name: "Maher Ben Ouirane", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h[cite: 4]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 4]", judges: "Sarra Ben Mahmoud et Mayara Hamaoui[cite: 4]", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
-            { name: "Nour Mahjoub", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h[cite: 4]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 4]", judges: "Sarra Ben Mahmoud et Mayara Hamaoui[cite: 4]", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
-            { name: "Yasmine Kasraoui", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h[cite: 4]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 4]", judges: "Sarra Ben Mahmoud et Mayara Hamaoui[cite: 4]", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
-            { name: "Salima Mourani", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h[cite: 4]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 4]", judges: "Sarra Ben Mahmoud et Mayara Hamaoui[cite: 4]", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
-            { name: "Ramy Bouhamed", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h[cite: 4]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 4]", judges: "Sarra Ben Mahmoud et Mayara Hamaoui[cite: 4]", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
-            { name: "Amine Ouerghi", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h[cite: 4]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 4]", judges: "Sarra Ben Mahmoud et Mayara Hamaoui[cite: 4]", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
-            { name: "Yasmine Bousrour", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h[cite: 4]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 4]", judges: "Sarra Ben Mahmoud et Mayara Hamaoui[cite: 4]", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
-            { name: "Lyne Naouali", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h[cite: 4]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 4]", judges: "Sarra Ben Mahmoud et Mayara Hamaoui[cite: 4]", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
-            { name: "Sara Sancho", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h[cite: 4]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 4]", judges: "Sarra Ben Mahmoud et Mayara Hamaoui[cite: 4]", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
-            { name: "Myriam Abbes", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h[cite: 4]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 4]", judges: "Sarra Ben Mahmoud et Mayara Hamaoui[cite: 4]", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
-            { name: "Lina Hermassi", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h[cite: 4]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 4]", judges: "Sarra Ben Mahmoud et Mayara Hamaoui[cite: 4]", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
-            { name: "Hosni Rahmatoallah", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h[cite: 4]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 4]", judges: "Sarra Ben Mahmoud et Mayara Hamaoui[cite: 4]", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
-            { name: "Yasmine Mahjoub", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h[cite: 4]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 4]", judges: "Sarra Ben Mahmoud et Mayara Hamaoui[cite: 4]", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
-            { name: "Sarra Khedher", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h[cite: 4]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 4]", judges: "Sarra Ben Mahmoud et Mayara Hamaoui[cite: 4]", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
-            { name: "Behia", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h[cite: 4]", location: "Salle F109 (Entrées Rue Bel Air)[cite: 4]", judges: "Sarra Ben Mahmoud et Mayara Hamaoui[cite: 4]", docName: "Background Guide - Liberté d'Expression", docUrl: "#" }
+            { name: "Mehdi Zenkri", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Sarra Ben Mahmoud et Mayara Hamaoui", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
+            { name: "Tasnim Louati", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Sarra Ben Mahmoud et Mayara Hamaoui", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
+            { name: "Farah Borgi", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Sarra Ben Mahmoud et Mayara Hamaoui", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
+            { name: "Bechir El Ouadhane", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Sarra Ben Mahmoud et Mayara Hamaoui", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
+            { name: "Maher Ben Ouirane", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Sarra Ben Mahmoud et Mayara Hamaoui", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
+            { name: "Nour Mahjoub", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Sarra Ben Mahmoud et Mayara Hamaoui", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
+            { name: "Yasmine Kasraoui", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Sarra Ben Mahmoud et Mayara Hamaoui", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
+            { name: "Salima Mourani", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Sarra Ben Mahmoud et Mayara Hamaoui", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
+            { name: "Ramy Bouhamed", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Sarra Ben Mahmoud et Mayara Hamaoui", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
+            { name: "Amine Ouerghi", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Sarra Ben Mahmoud et Mayara Hamaoui", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
+            { name: "Yasmine Bousrour", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Sarra Ben Mahmoud et Mayara Hamaoui", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
+            { name: "Lyne Naouali", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Sarra Ben Mahmoud et Mayara Hamaoui", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
+            { name: "Sara Sancho", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Sarra Ben Mahmoud et Mayara Hamaoui", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
+            { name: "Myriam Abbes", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Sarra Ben Mahmoud et Mayara Hamaoui", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
+            { name: "Lina Hermassi", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Sarra Ben Mahmoud et Mayara Hamaoui", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
+            { name: "Hosni Rahmatoallah", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Sarra Ben Mahmoud et Mayara Hamaoui", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
+            { name: "Yasmine Mahjoub", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Sarra Ben Mahmoud et Mayara Hamaoui", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
+            { name: "Sarra Khedher", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Sarra Ben Mahmoud et Mayara Hamaoui", docName: "Background Guide - Liberté d'Expression", docUrl: "#" },
+            { name: "Behia", session: "Session 2", topic: "Faut-il limiter la liberté d'expression en France ?", date: "Mercredi 9 septembre de 16h à 17h", location: "Salle F109 (Entrées Rue Bel Air)", judges: "Sarra Ben Mahmoud et Mayara Hamaoui", docName: "Background Guide - Liberté d'Expression", docUrl: "#" }
         ];
 
         function normalizeString(str) {
-            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+            return str.normalize("NFD").replace(/[\\u0300-\\u036f]/g, "").toLowerCase().trim();
         }
 
         function handleLogin(event) {
@@ -403,7 +409,6 @@
 
             if (candidate) {
                 errorMsg.style.display = 'none';
-                // Remplir les données du dashboard
                 document.getElementById('candidate-name-display').innerText = candidate.name;
                 document.getElementById('session-badge').innerText = candidate.session;
                 document.getElementById('info-topic').innerText = candidate.topic;
@@ -413,11 +418,9 @@
                 document.getElementById('doc-title').innerText = candidate.docName;
                 document.getElementById('doc-link').href = candidate.docUrl;
 
-                // Basculer l'affichage
                 document.getElementById('login-section').style.display = 'none';
                 document.getElementById('dashboard-section').style.display = 'block';
 
-                // Sauvegarder la session locale simple
                 localStorage.setItem('barreau_candidate', candidate.name);
             } else {
                 errorMsg.style.display = 'block';
@@ -431,12 +434,10 @@
             document.getElementById('fullName').value = '';
         }
 
-        // Vérification automatique si l'utilisateur était déjà connecté
         window.onload = function() {
             const savedName = localStorage.getItem('barreau_candidate');
             if (savedName) {
                 document.getElementById('fullName').value = savedName;
-                // Déclencher la connexion automatique
                 const fakeEvent = { preventDefault: () => {} };
                 handleLogin(fakeEvent);
             }
@@ -444,3 +445,7 @@
     </script>
 </body>
 </html>
+"""
+
+# Affichage du code HTML dans Streamlit
+st.markdown(html_code, unsafe_allow_html=True)
