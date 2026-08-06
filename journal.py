@@ -11,7 +11,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# Design épuré, luxueux, aux tons clairs (comme demandé : couleurs claires, élégant, style grand magazine)
+# Design épuré, luxueux, aux tons clairs (couleurs claires, élégant, style grand magazine)
 st.markdown("""
     <style>
     .stApp {
@@ -47,7 +47,6 @@ st.markdown("""
 
 # Fichiers de persistance
 ARTICLES_FILE = "journal_articles.csv"
-SURVEYS_FILE = "journal_surveys.csv"
 
 # Initialisation des articles par défaut (si vide)
 default_articles = [
@@ -106,6 +105,13 @@ def save_articles(articles):
 
 if 'journal_articles' not in st.session_state:
     st.session_state.journal_articles = load_articles()
+
+# États de connexion pour les onglets sécurisés
+if 'membres_authenticated' not in st.session_state:
+    st.session_state.membres_authenticated = False
+
+if 'bureau_authenticated' not in st.session_state:
+    st.session_state.bureau_authenticated = False
 
 # Entête du Journal
 st.markdown("<h1 style='text-align: center; font-size: 3rem;'>LE BARREAU JOURNAL</h1>", unsafe_allow_html=True)
@@ -201,74 +207,118 @@ with tab_sondages:
             st.warning("Essayez de trouver un terme juridique un peu plus long !")
 
 # ----------------------------------------------------
-# ONGLET 4 : ESPACE RÉDACTION (Réservé aux membres)
+# ONGLET 4 : ESPACE RÉDACTION (Réservé aux membres - VERROUILLÉ)
 # ----------------------------------------------------
 with tab_redaction:
     st.markdown("## ✍️ Espace Rédaction des Membres")
-    st.write("Rédigez vos articles et soumettez-les directement au comité de relecture du bureau.")
     
-    with st.form("form_redaction"):
-        auteur = st.text_input("Votre Prénom et Nom")
-        titre = st.text_input("Titre de l'article")
-        categorie = st.selectbox("Rubrique", [
-            "À la une : Histoire & Procès Historiques", 
-            "Actualités Françaises", 
-            "Actualités Internationales"
-        ])
-        image_link = st.text_input("Lien de l'image (URL HTTPS)")
-        contenu = st.text_area("Contenu complet de l'article")
+    if not st.session_state.membres_authenticated:
+        st.warning("🔒 Cet espace est strictement réservé aux membres rédacteurs du Barreau.")
+        with st.form("login_membres_form"):
+            pwd_membres = st.text_input("Entrez le mot de passe Membres", type="password")
+            submit_login_membres = st.form_submit_button("Se connecter")
+            
+            if submit_login_membres:
+                # Mot de passe unique pour les membres (modifiable selon vos préférences)
+                if pwd_membres == "BarreauMembres2026":
+                    st.session_state.membres_authenticated = True
+                    st.success("Connexion réussie !")
+                    st.rerun()
+                else:
+                    st.error("Mot de passe incorrect.")
+    else:
+        st.success("✅ Connecté à l'espace rédaction des membres.")
+        if st.button("Se déconnecter de l'espace membres"):
+            st.session_state.membres_authenticated = False
+            st.rerun()
+            
+        st.write("---")
+        st.write("Rédigez vos articles et soumettez-les directement au comité de relecture du bureau.")
         
-        submit_article = st.form_submit_button("Soumettre au bureau pour validation")
-        
-        if submit_article:
-            if auteur and titre and contenu:
-                new_art = {
-                    "id": len(st.session_state.journal_articles) + 1,
-                    "title": titre,
-                    "category": categorie,
-                    "author": auteur,
-                    "content": contenu,
-                    "image_url": image_link if image_link else "https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=1000&auto=format&fit=crop",
-                    "status": "En attente"
-                }
-                st.session_state.journal_articles.append(new_art)
-                save_articles(st.session_state.journal_articles)
-                st.success("Article soumis avec succès ! Il est en attente d'approbation par le bureau exécutif.")
-            else:
-                st.error("Veuillez remplir au moins votre nom, le titre et le contenu.")
+        with st.form("form_redaction"):
+            auteur = st.text_input("Votre Prénom et Nom")
+            titre = st.text_input("Titre de l'article")
+            categorie = st.selectbox("Rubrique", [
+                "À la une : Histoire & Procès Historiques", 
+                "Actualités Françaises", 
+                "Actualités Internationales"
+            ])
+            image_link = st.text_input("Lien de l'image (URL HTTPS)")
+            contenu = st.text_area("Contenu complet de l'article")
+            
+            submit_article = st.form_submit_button("Soumettre au bureau pour validation")
+            
+            if submit_article:
+                if auteur and titre and contenu:
+                    new_art = {
+                        "id": len(st.session_state.journal_articles) + 1,
+                        "title": titre,
+                        "category": categorie,
+                        "author": auteur,
+                        "content": contenu,
+                        "image_url": image_link if image_link else "https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=1000&auto=format&fit=crop",
+                        "status": "En attente"
+                    }
+                    st.session_state.journal_articles.append(new_art)
+                    save_articles(st.session_state.journal_articles)
+                    st.success("Article soumis avec succès ! Il est en attente d'approbation par le bureau exécutif.")
+                else:
+                    st.error("Veuillez remplir au moins votre nom, le titre et le contenu.")
 
 # ----------------------------------------------------
-# ONGLET 5 : BUREAU EXÉCUTIF (Validation des articles)
+# ONGLET 5 : BUREAU EXÉCUTIF (Validation des articles - VERROUILLÉ)
 # ----------------------------------------------------
 with tab_bureau:
-    st.markdown("## 🔒 Comité de Relecture (Réservé au Bureau)")
-    st.write("Approuvez ou rejetez les articles soumis par les membres avant leur publication officielle.")
+    st.markdown("## 🔒 Comité de Relecture (Bureau Exécutif)")
     
-    pending_arts = [a for a in st.session_state.journal_articles if a["status"] == "En attente"]
-    
-    if not pending_arts:
-        st.info("Aucun article en attente de relecture pour le moment.")
-    else:
-        for art in pending_arts:
-            st.markdown(f"<div class='article-card'>", unsafe_allow_html=True)
-            st.markdown(f"### [{art['category']}] {art['title']}")
-            st.markdown(f"<p style='color: #8C6D32;'>Auteur : <b>{art['author']}</b></p>", unsafe_allow_html=True)
-            st.write(art['content'])
+    if not st.session_state.bureau_authenticated:
+        st.warning("🔒 Cet espace est strictement réservé aux membres du bureau exécutif.")
+        with st.form("login_bureau_form"):
+            pwd_bureau = st.text_input("Entrez le mot de passe Bureau Exécutif", type="password")
+            submit_login_bureau = st.form_submit_button("Connexion Bureau")
             
-            col_app1, col_app2 = st.columns(2)
-            with col_app1:
-                if st.button(f"✅ Approuver", key=f"app_{art['id']}"):
-                    art["status"] = "Approuvé"
-                    save_articles(st.session_state.journal_articles)
-                    st.success("Article approuvé et publié !")
+            if submit_login_bureau:
+                # Mot de passe unique pour le bureau exécutif
+                if pwd_bureau == "KaisZarrad123pass":
+                    st.session_state.bureau_authenticated = True
+                    st.success("Connexion réussie !")
                     st.rerun()
-            with col_app2:
-                if st.button(f"❌ Rejeter", key=f"rej_{art['id']}"):
-                    st.session_state.journal_articles.remove(art)
-                    save_articles(st.session_state.journal_articles)
-                    st.error("Article rejeté et supprimé.")
-                    st.rerun()
-            st.markdown("</div>", unsafe_allow_html=True)
+                else:
+                    st.error("Mot de passe incorrect.")
+    else:
+        st.success("✅ Connecté au comité de relecture du bureau.")
+        if st.button("Se déconnecter du bureau"):
+            st.session_state.bureau_authenticated = False
+            st.rerun()
+            
+        st.write("---")
+        st.write("Approuvez ou rejetez les articles soumis par les membres avant leur publication officielle.")
+        
+        pending_arts = [a for a in st.session_state.journal_articles if a["status"] == "En attente"]
+        
+        if not pending_arts:
+            st.info("Aucun article en attente de relecture pour le moment.")
+        else:
+            for art in pending_arts:
+                st.markdown(f"<div class='article-card'>", unsafe_allow_html=True)
+                st.markdown(f"### [{art['category']}] {art['title']}")
+                st.markdown(f"<p style='color: #8C6D32;'>Auteur : <b>{art['author']}</b></p>", unsafe_allow_html=True)
+                st.write(art['content'])
+                
+                col_app1, col_app2 = st.columns(2)
+                with col_app1:
+                    if st.button(f"✅ Approuver", key=f"app_{art['id']}"):
+                        art["status"] = "Approuvé"
+                        save_articles(st.session_state.journal_articles)
+                        st.success("Article approuvé et publié !")
+                        st.rerun()
+                with col_app2:
+                    if st.button(f"❌ Rejeter", key=f"rej_{art['id']}"):
+                        st.session_state.journal_articles.remove(art)
+                        save_articles(st.session_state.journal_articles)
+                        st.error("Article rejeté et supprimé.")
+                        st.rerun()
+                st.markdown("</div>", unsafe_allow_html=True)
 
 st.write("---")
 st.markdown("<p style='text-align: center; color: #7F7C79; font-size: 0.8rem;'>© 2026 Le Barreau Journal — Lycée Pierre Mendès France, Tunis.</p>", unsafe_allow_html=True)
