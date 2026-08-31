@@ -6,33 +6,94 @@ import json
 
 # Configuration de la page
 st.set_page_config(
-    page_title="Le Barreau | Plateforme Officielle de Recrutement",
+    page_title="Le Barreau | Haute Instance & Recrutement",
     page_icon="⚖️",
     layout="centered"
 )
 
-# Design épuré, élégant et sombre
+# Design de Luxe : Noir Profond, Or Impérial et Ivoire
 st.markdown("""
     <style>
+    /* Fond général de l'application */
     .stApp {
-        background-color: #120F0D;
-        color: #F5F2EF;
+        background-color: #0B0B0C;
+        color: #EAE5DE;
+        font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     }
+    
+    /* Titres prestigieux */
     h1, h2, h3 {
         font-family: 'Georgia', serif;
-        color: #E6D5C3;
+        color: #F3EFEA;
+        font-weight: normal;
+        letter-spacing: 0.5px;
     }
+    
+    /* Conteneurs de formulaires et blocs style "Carte de Luxe" */
+    div.stForm, div.row-widget.stHorizontal, div[data-testid="stVerticalBlock"] > div[style*="background-color"] {
+        background-color: #141416;
+        border: 1px solid #2A2826;
+        border-radius: 12px;
+        padding: 24px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    
+    /* Boutons de luxe dorés ultra-lisibles */
     .stButton>button {
         width: 100%;
-        background: linear-gradient(135deg, #D4AF37 0%, #AA8225 100%);
-        color: #120F0D;
+        background: linear-gradient(135deg, #DFB15B 0%, #C59B37 100%);
+        color: #0B0B0C !important;
+        font-family: 'Georgia', serif;
         font-weight: bold;
+        letter-spacing: 1px;
         border: none;
-        border-radius: 8px;
-        padding: 10px;
+        border-radius: 6px;
+        padding: 12px 20px;
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        box-shadow: 0 4px 15px rgba(197, 155, 55, 0.2);
+        transition: all 0.3s ease;
     }
     .stButton>button:hover {
-        opacity: 0.95;
+        background: linear-gradient(135deg, #EFC36D 0%, #D4AF37 100%);
+        box-shadow: 0 6px 20px rgba(212, 175, 55, 0.4);
+        transform: translateY(-1px);
+    }
+    
+    /* Champs de saisie élégants */
+    .stTextInput>div>div>input, .stSelectbox>div>div>div {
+        background-color: #1A1A1D !important;
+        color: #F3EFEA !important;
+        border: 1px solid #332F2B !important;
+        border-radius: 6px !important;
+    }
+    .stTextInput>div>div>input:focus {
+        border-color: #C59B37 !important;
+        box-shadow: 0 0 8px rgba(197, 155, 55, 0.3) !important;
+    }
+
+    /* Onglets de navigation */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 12px;
+        background-color: transparent;
+    }
+    .stTabs [data-baseweb="tab"] {
+        background-color: #141416;
+        border-radius: 6px;
+        color: #A89F96;
+        border: 1px solid #2A2826;
+        padding: 10px 20px;
+        font-family: 'Georgia', serif;
+    }
+    .stTabs [aria-selected="true"] {
+        background: linear-gradient(135deg, #1F1D1A 0%, #141416 100%);
+        color: #DFB15B !important;
+        border-color: #C59B37 !important;
+    }
+    
+    /* Lignes de séparation dorées */
+    hr {
+        border-color: #2A2826;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -129,12 +190,12 @@ if 'database' not in st.session_state:
 def normalize(text):
     return ''.join(c for c in unicodedata.normalize('NFD', text) if unicodedata.category(c) != 'Mn').lower().strip()
 
-# En-tête général du site
-st.markdown("<h1 style='text-align: center;'>Le Barreau</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: #A89F96; text-transform: uppercase; letter-spacing: 1px;'>Lycée Pierre Mendès France — Plateforme de Recrutement 2026</p>", unsafe_allow_html=True)
+# En-tête majestueux
+st.markdown("<h1 style='text-align: center; color: #DFB15B; font-weight: normal; letter-spacing: 2px;'>LE BARREAU</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #8C8279; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem;'>Lycée Pierre Mendès France — Session de Recrutement 2026</p>", unsafe_allow_html=True)
 st.write("")
 
-# Système d'onglets principaux (Espace Candidat vs Espace Bureau Exécutif)
+# Système d'onglets principaux
 tab_candidat, tab_bureau = st.tabs(["🎓 Espace Candidat", "🔒 Espace Bureau Exécutif"])
 
 # ==========================================
@@ -146,8 +207,8 @@ with tab_candidat:
 
     if st.session_state.candidate_session is None:
         with st.form("login_form_cand"):
-            st.markdown("### Connexion Candidat")
-            st.write("Entrez vos prénom et nom exacts pour accéder aux détails de votre session.")
+            st.markdown("<h3 style='color: #DFB15B; font-size: 1.2rem;'>Identification Candidat</h3>", unsafe_allow_html=True)
+            st.markdown("<p style='color: #A89F96; font-size: 0.9rem;'>Veuillez entrer vos prénom et nom exacts pour accéder à votre convocation.</p>", unsafe_allow_html=True)
             
             full_name_input = st.text_input("Prénom et Nom", placeholder="")
             submitted_cand = st.form_submit_button("Accéder à mon espace")
@@ -164,29 +225,28 @@ with tab_candidat:
     else:
         c = st.session_state.candidate_session
         
-        st.markdown(f"### Bienvenue, {c['name']}")
-        st.info(f"📍 **Numéro de session :** {c['session']} | 👥 **Équipe :** {c['team']}")
+        st.markdown(f"<h2 style='color: #DFB15B;'>Bienvenue, {c['name']}</h2>", unsafe_allow_html=True)
+        st.info(f"📍 **Session :** {c['session']} &nbsp;|&nbsp; ⚖️ **Affectation d'équipe :** {c['team']}")
         
         st.write("---")
         
-        st.markdown(f"**Sujet de session :** {c['topic']}")
+        st.markdown(f"**Sujet de plaidoirie :** {c['topic']}")
         st.markdown(f"**Date et horaire :** {c['date']}")
-        st.markdown(f"**Lieu exact :** {c['location']}")
-        st.markdown(f"**Juges et évaluateurs :** {c['judges']}")
-        st.markdown(f"**Équipe assignée :** {c['team']}")
+        st.markdown(f"**Lieu :** {c['location']}")
+        st.markdown(f"**Membres du jury :** {c['judges']}")
         
         st.write("---")
-        st.markdown("### 🎥 Ressources et Vidéos de Préparation")
+        st.markdown("<h3 style='color: #DFB15B; font-size: 1.1rem;'>Ressources Pédagogiques</h3>", unsafe_allow_html=True)
         
         if "Session 1" in c['session']:
-            st.markdown("**1. Vidéo de soutien (Facultatif) :** Support en plus pour enrichir vos connaissances générales et vous appuyer dessus pour le débat.")
+            st.markdown("**1. Document de soutien (Facultatif) :**")
             st.video("https://youtu.be/TEjAtdHGGNM?si=4qAr1RzkE1Qk2e1P")
         else:
-            st.markdown("**1. Vidéo de soutien (Facultatif) :** Support en plus pour enrichir vos connaissances générales et vous appuyer dessus pour le débat.")
+            st.markdown("**1. Document de soutien (Facultatif) :**")
             st.video("https://youtu.be/-PqpU3n_W6s?si=YKhTSEaygUzsev_K")
             
         st.write("")
-        st.markdown("**2. Vidéo méthode (Très conseillé) :** Destinée à comprendre comment fonctionne un débat juridique et structurer votre argumentation.")
+        st.markdown("**2. Guide méthodologique de l'art oratoire :**")
         st.video("https://youtu.be/c4n3g2r_NAo?si=HJu0JM6ON41cHO2K")
         
         st.write("")
@@ -201,7 +261,6 @@ with tab_bureau:
     if 'bureau_user' not in st.session_state:
         st.session_state.bureau_user = None
 
-    # Dictionnaire des accès sécurisés du bureau avec fonctions explicites
     bureau_accounts = {
         "Kaïs Zarrad - co-président": "K9#zL$mP2!qR8v",
         "Adam Chtourou - co-président": "Ad9$xK3#wY5!tN",
@@ -212,12 +271,12 @@ with tab_bureau:
 
     if st.session_state.bureau_user is None:
         with st.form("login_form_bureau"):
-            st.markdown("### 🔒 Connexion Bureau Exécutif & Prof. Référente")
-            st.write("Réservé aux membres habilités du bureau.")
+            st.markdown("<h3 style='color: #DFB15B; font-size: 1.2rem;'>Sécurité Bureau Exécutif</h3>", unsafe_allow_html=True)
+            st.markdown("<p style='color: #A89F96; font-size: 0.9rem;'>Accès strictement réservé aux membres accrédités.</p>", unsafe_allow_html=True)
             
             selected_member = st.selectbox("Sélectionner votre profil", list(bureau_accounts.keys()))
-            password_input = st.text_input("Mot de passe", type="password")
-            submitted_bureau = st.form_submit_button("Connexion Bureau")
+            password_input = st.text_input("Mot de passe sécurisé", type="password")
+            submitted_bureau = st.form_submit_button("Connexion Sécurisée")
             
             if submitted_bureau:
                 if password_input == bureau_accounts[selected_member]:
@@ -227,35 +286,33 @@ with tab_bureau:
                     st.error("Mot de passe incorrect.")
     else:
         user_name = st.session_state.bureau_user
-        st.success(f"Connecté en tant que : **{user_name}**")
+        st.success(f"Connecté avec accréditation : **{user_name}**")
         
-        if st.button("Se déconnecter du Bureau"):
+        if st.button("Fermer la session Bureau"):
             st.session_state.bureau_user = None
             st.rerun()
             
         st.write("---")
         
-        # Sous-navigation de l'espace bureau
         bureau_tab_eval, bureau_tab_teams, bureau_tab_ranking = st.tabs([
-            "📝 Évaluations & Présences (Mode Rapide)", 
-            "⚙️ Gestion des Équipes & Sessions", 
-            "🏆 Classement & Résultats (Top 25)"
+            "📝 Évaluations & Pointage", 
+            "⚙️ Gestion des Sessions", 
+            "🏆 Classement Officiel (Top 25)"
         ])
         
         # ------------------------------------------
-        # SOUS-ONGLET 1 : EVALUATIONS & PRESENCES RAPIDES
+        # SOUS-ONGLET 1 : EVALUATIONS & PRESENCES
         # ------------------------------------------
         with bureau_tab_eval:
-            st.markdown("### 📝 Grille d'Évaluation Rapide et Pointage")
-            st.write(f"**Évaluateur connecté :** {user_name}. Modifiez directement les présences et les notes dans le tableau ci-dessous, puis cliquez sur enregistrer.")
+            st.markdown("### Grille d'Évaluation Collaborative")
+            st.write(f"Évaluateur actif : **{user_name}**. Modifiez directement les présences et les notes, puis validez.")
             
-            session_filter = st.selectbox("Filtrer par session pour noter", ["Toutes les sessions", "Session 1", "Session 2"])
+            session_filter = st.selectbox("Filtrer par session", ["Toutes les sessions", "Session 1", "Session 2"])
             
             filtered_candidates = st.session_state.database
             if session_filter != "Toutes les sessions":
                 filtered_candidates = [c for c in st.session_state.database if c["session"] == session_filter]
             
-            # Préparation des données pour le tableau interactif
             table_data = []
             for c in filtered_candidates:
                 existing_notes = c["notes"].get(user_name, {"arg": 0, "ecoute": 0, "equipe": 0, "regles": 0, "langue": 0})
@@ -272,7 +329,6 @@ with tab_bureau:
             
             df_editable = pd.DataFrame(table_data)
             
-            # Configuration des options de colonnes pour le tableau interactif
             edited_df = st.data_editor(
                 df_editable,
                 column_config={
@@ -290,7 +346,7 @@ with tab_bureau:
                 key="editor_grades"
             )
             
-            if st.button("💾 Enregistrer toutes les modifications du tableau"):
+            if st.button("💾 Enregistrer les notes et présences"):
                 for _, row in edited_df.iterrows():
                     c_obj = next(c for c in st.session_state.database if c["name"] == row["Nom"])
                     c_obj["presence"] = row["Présence"]
@@ -304,23 +360,22 @@ with tab_bureau:
                         "langue": int(row["Maîtrise de la langue (/4)"])
                     }
                 save_data(st.session_state.database)
-                st.success("Toutes les notes et présences ont été enregistrées et mutualisées avec succès !")
+                st.success("Enregistrement effectué avec succès !")
 
         # ------------------------------------------
-        # SOUS-ONGLET 2 : GESTION DES EQUIPES & SESSIONS
+        # SOUS-ONGLET 2 : GESTION DES EQUIPES
         # ------------------------------------------
         with bureau_tab_teams:
-            st.markdown("### ⚙️ Modification des détails et équipes (POUR / CONTRE)")
-            st.write("Modifiez l'affectation des équipes ou les paramètres d'un candidat en temps réel.")
+            st.markdown("### Paramétrage des Candidats")
             
-            mod_cand_name = st.selectbox("Sélectionner le candidat à modifier", [c["name"] for c in st.session_state.database], key="mod_select")
+            mod_cand_name = st.selectbox("Sélectionner un candidat", [c["name"] for c in st.session_state.database], key="mod_select")
             mod_cand = next(c for c in st.session_state.database if c["name"] == mod_cand_name)
             
             with st.form("form_edit_candidate"):
                 new_team = st.text_input("Équipe assignée", value=mod_cand["team"])
                 new_session = st.selectbox("Session", ["Session 1", "Session 2"], index=0 if mod_cand["session"] == "Session 1" else 1)
                 
-                submitted_mod = st.form_submit_button("Mettre à jour les informations")
+                submitted_mod = st.form_submit_button("Mettre à jour le dossier")
                 
                 if submitted_mod:
                     mod_cand["team"] = new_team
@@ -335,15 +390,15 @@ with tab_bureau:
                         mod_cand["judges"] = "Sarra Ben Mahmoud et Mayara Hamaoui"
                         
                     save_data(st.session_state.database)
-                    st.success(f"Modifications enregistrées pour {mod_cand['name']} !")
+                    st.success(f"Mise à jour validée pour {mod_cand['name']} !")
                     st.rerun()
 
         # ------------------------------------------
-        # SOUS-ONGLET 3 : CLASSEMENT & RESULTATS (TOP 25)
+        # SOUS-ONGLET 3 : CLASSEMENT & RESULTATS
         # ------------------------------------------
         with bureau_tab_ranking:
-            st.markdown("### 🏆 Classement Général Automatique (Confidentiel)")
-            st.write("La plateforme fusionne automatiquement toutes les notes saisies par les différents membres du bureau pour calculer une moyenne globale unique. Les 25 premiers sont automatiquement retenus.")
+            st.markdown("### Classement Général & Sélection du Top 25")
+            st.write("Synthèse automatique des notes consolidées de l'ensemble des membres du bureau.")
             
             ranking_data = []
             for c in st.session_state.database:
@@ -363,23 +418,19 @@ with tab_bureau:
                     "Équipe": c["team"],
                     "Présence": c["presence"],
                     "Moyenne (/20)": round(avg_score, 2),
-                    "Évaluateurs ayant noté": len(evals)
+                    "Évaluateurs": len(evals)
                 })
             
             df_rank = pd.DataFrame(ranking_data)
             df_rank = df_rank.sort_values(by="Moyenne (/20)", ascending=False).reset_index(drop=True)
-            df_rank.index += 1 # Le classement commence à 1
+            df_rank.index += 1
             
-            # Détermination des acceptés / refusés (Top 25)
             def get_status(idx):
-                return "Accepté (Top 25)" if idx <= 25 else "Refusé"
+                return "Sélectionné (Top 25)" if idx <= 25 else "Non retenu"
             
             df_rank["Statut"] = [get_status(i) for i in df_rank.index]
             
             st.dataframe(df_rank, use_container_width=True)
-            
-            st.write("---")
-            st.info("💡 **Rappel :** Ce classement est confidentiel et réservé exclusivement à l'affichage sur le canal du bureau exécutif.")
 
 st.write("---")
-st.markdown("<p style='text-align: center; color: #A89F96; font-size: 0.8rem;'>© 2026 Le Barreau — Lycée Pierre Mendès France, Tunis.</p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #554F49; font-size: 0.75rem; letter-spacing: 1px;'>LE BARREAU — LYCÉE PIERRE MENDÈS FRANCE</p>", unsafe_allow_html=True)
