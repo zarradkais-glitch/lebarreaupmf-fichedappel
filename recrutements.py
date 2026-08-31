@@ -2,6 +2,7 @@ import streamlit as st
 import unicodedata
 import pandas as pd
 import os
+import json
 
 # Configuration de la page
 st.set_page_config(
@@ -58,6 +59,7 @@ default_database = [
     { "name": "Sohane Wawrzynowski", "session": "Session 1", "topic": "Est-ce que le droit international est encore légitime de nos jours ?", "date": "Mercredi 9 septembre de 15h à 16h", "location": "Salle F109 (Entrée Rue Bel Air)", "judges": "Kaïs Zarrad et Adam Chtourou", "docName": "Background Guide - Droit International", "team": "Oui, il l'est encore", "presence": "Non pointé", "notes": {} },
     { "name": "Sarra Chaouch", "session": "Session 1", "topic": "Est-ce que le droit international est encore légitime de nos jours ?", "date": "Mercredi 9 septembre de 15h à 16h", "location": "Salle F109 (Entrée Rue Bel Air)", "judges": "Kaïs Zarrad et Adam Chtourou", "docName": "Background Guide - Droit International", "team": "Non, il ne l'est plus", "presence": "Non pointé", "notes": {} },
     { "name": "Baya Hadj Ali", "session": "Session 1", "topic": "Est-ce que le droit international est encore légitime de nos jours ?", "date": "Mercredi 9 septembre de 15h à 16h", "location": "Salle F109 (Entrée Rue Bel Air)", "judges": "Kaïs Zarrad et Adam Chtourou", "docName": "Background Guide - Droit International", "team": "Oui, il l'est encore", "presence": "Non pointé", "notes": {} },
+    { "name": "Maya Aissa", "session": "Session 1", "topic": "Est-ce que le droit international est encore légitime de nos jours ?", "date": "Mercredi 9 septembre de 15h à 16h", "location": "Salle F109 (Entrée Rue Bel Air)", "judges": "Kaïs Zarrad et Adam Chtourou", "docName": "Background Guide - Droit International", "team": "Oui, il l'est encore", "presence": "Non pointé", "notes": {} },
 
     { "name": "Mehdi Zenkri", "session": "Session 2", "topic": "Faut-il limiter la liberté d'expression en France ?", "date": "Mercredi 9 septembre de 16h à 17h", "location": "Salle F109 (Entrée Rue Bel Air)", "judges": "Sarra Ben Mahmoud et Mayara Hamaoui", "docName": "Background Guide - Liberté d'Expression", "team": "Oui, il faut", "presence": "Non pointé", "notes": {} },
     { "name": "Tasnim Louati", "session": "Session 2", "topic": "Faut-il limiter la liberté d'expression en France ?", "date": "Mercredi 9 septembre de 16h à 17h", "location": "Salle F109 (Entrée Rue Bel Air)", "judges": "Sarra Ben Mahmoud et Mayara Hamaoui", "docName": "Background Guide - Liberté d'Expression", "team": "Non, il ne faut pas", "presence": "Non pointé", "notes": {} },
@@ -76,11 +78,9 @@ default_database = [
     { "name": "Lina Hermassi", "session": "Session 2", "topic": "Faut-il limiter la liberté d'expression en France ?", "date": "Mercredi 9 septembre de 16h à 17h", "location": "Salle F109 (Entrée Rue Bel Air)", "judges": "Sarra Ben Mahmoud et Mayara Hamaoui", "docName": "Background Guide - Liberté d'Expression", "team": "Oui, il faut", "presence": "Non pointé", "notes": {} },
     { "name": "Hosni Rahmatoallah", "session": "Session 2", "topic": "Faut-il limiter la liberté d'expression en France ?", "date": "Mercredi 9 septembre de 16h à 17h", "location": "Salle F109 (Entrée Rue Bel Air)", "judges": "Sarra Ben Mahmoud et Mayara Hamaoui", "docName": "Background Guide - Liberté d'Expression", "team": "Non, il ne faut pas", "presence": "Non pointé", "notes": {} },
     { "name": "Yasmine Mahjoub", "session": "Session 2", "topic": "Faut-il limiter la liberté d'expression en France ?", "date": "Mercredi 9 septembre de 16h à 17h", "location": "Salle F109 (Entrée Rue Bel Air)", "judges": "Sarra Ben Mahmoud et Mayara Hamaoui", "docName": "Background Guide - Liberté d'Expression", "team": "Oui, il faut", "presence": "Non pointé", "notes": {} },
-    { "name": "Sarra Khedher Behia", "session": "Session 2", "topic": "Faut-il limiter la liberté d'expression en France ?", "date": "Mercredi 9 septembre de 16h à 17h", "location": "Salle F109 (Entrée Rue Bel Air)", "judges": "Sarra Ben Mahmoud et Mayara Hamaoui", "docName": "Background Guide - Liberté d'Expression", "team": "Non, il ne faut pas", "presence": "Non pointé", "notes": {} }
+    { "name": "Sarra Khedher Behia", "session": "Session 2", "topic": "Faut-il limiter la liberté d'expression en France ?", "date": "Mercredi 9 septembre de 16h à 17h", "location": "Salle F109 (Entrée Rue Bel Air)", "judges": "Sarra Ben Mahmoud et Mayara Hamaoui", "docName": "Background Guide - Liberté d'Expression", "team": "Non, il ne faut pas", "presence": "Non pointé", "notes": {} },
+    { "name": "Sofia Zouari", "session": "Session 2", "topic": "Faut-il limiter la liberté d'expression en France ?", "date": "Mercredi 9 septembre de 16h à 17h", "location": "Salle F109 (Entrée Rue Bel Air)", "judges": "Sarra Ben Mahmoud et Mayara Hamaoui", "docName": "Background Guide - Liberté d'Expression", "team": "Non, il ne faut pas", "presence": "Non pointé", "notes": {} }
 ]
-
-# Gestion du chargement et de la sauvegarde des données (Persistance automatique)
-import json
 
 def load_data():
     if os.path.exists(DATA_FILE):
@@ -201,13 +201,13 @@ with tab_bureau:
     if 'bureau_user' not in st.session_state:
         st.session_state.bureau_user = None
 
-    # Dictionnaire des accès autorisés du bureau
+    # Dictionnaire des accès sécurisés du bureau avec fonctions explicites
     bureau_accounts = {
-        "Kaïs Zarrad": "KaisZarrad123pass",
-        "Adam Chtourou": "AdamChtourou123pass",
-        "Sarra Ben Mahmoud": "Secrétariat123pass",
-        "Mayara Hamaoui": "Secrétariat123pass",
-        "Nadia Sfia": "MadameSfia123pass"
+        "Kaïs Zarrad - co-président": "K9#zL$mP2!qR8v",
+        "Adam Chtourou - co-président": "Ad9$xK3#wY5!tN",
+        "Mayara Hamaoui - Cheffe communication": "My7*bH2!eD4#sQ",
+        "Sarra Ben Mahmoud - Cheffe média": "Sr5#nM8!aF6$pW",
+        "Madame Sfia - prof référente": "Sf9!rP4#tV2$jK"
     }
 
     if st.session_state.bureau_user is None:
@@ -237,53 +237,75 @@ with tab_bureau:
         
         # Sous-navigation de l'espace bureau
         bureau_tab_eval, bureau_tab_teams, bureau_tab_ranking = st.tabs([
-            "📝 Évaluations & Présences", 
+            "📝 Évaluations & Présences (Mode Rapide)", 
             "⚙️ Gestion des Équipes & Sessions", 
             "🏆 Classement & Résultats (Top 25)"
         ])
         
         # ------------------------------------------
-        # SOUS-ONGLET 1 : EVALUATIONS & PRESENCES
+        # SOUS-ONGLET 1 : EVALUATIONS & PRESENCES RAPIDES
         # ------------------------------------------
         with bureau_tab_eval:
-            st.markdown("### Gestion des Présences et Notation des Candidats")
-            st.write("Chaque évaluateur note les 5 critères (sur 4 points chacun, total sur 20). Vos notes s'enregistrent et s'additionnent automatiquement.")
+            st.markdown("### 📝 Grille d'Évaluation Rapide et Pointage")
+            st.write(f"**Évaluateur connecté :** {user_name}. Modifiez directement les présences et les notes dans le tableau ci-dessous, puis cliquez sur enregistrer.")
             
-            selected_cand_name = st.selectbox("Choisir un candidat à évaluer", [c["name"] for c in st.session_state.database])
-            cand_obj = next(c for c in st.session_state.database if c["name"] == selected_cand_name)
+            session_filter = st.selectbox("Filtrer par session pour noter", ["Toutes les sessions", "Session 1", "Session 2"])
             
-            # Gestion de la présence
-            current_presence = cand_obj.get("presence", "Non pointé")
-            presence_options = ["Non pointé", "Présent", "Absent"]
-            new_presence = st.selectbox("Statut de présence", presence_options, index=presence_options.index(current_presence))
-            if new_presence != current_presence:
-                cand_obj["presence"] = new_presence
-                save_data(st.session_state.database)
-                st.success("Statut de présence mis à jour !")
+            filtered_candidates = st.session_state.database
+            if session_filter != "Toutes les sessions":
+                filtered_candidates = [c for c in st.session_state.database if c["session"] == session_filter]
             
-            st.write(f"**Session :** {cand_obj['session']} | **Sujet :** {cand_obj['topic']} | **Équipe actuelle :** {cand_obj['team']}")
-            st.write("---")
+            # Préparation des données pour le tableau interactif
+            table_data = []
+            for c in filtered_candidates:
+                existing_notes = c["notes"].get(user_name, {"arg": 0, "ecoute": 0, "equipe": 0, "regles": 0, "langue": 0})
+                table_data.append({
+                    "Nom": c["name"],
+                    "Session": c["session"],
+                    "Présence": c.get("presence", "Non pointé"),
+                    "Argumentation (/4)": int(existing_notes.get("arg", 0)),
+                    "Écoute (/4)": int(existing_notes.get("ecoute", 0)),
+                    "Esprit d'équipe (/4)": int(existing_notes.get("equipe", 0)),
+                    "Respect des règles (/4)": int(existing_notes.get("regles", 0)),
+                    "Maîtrise de la langue (/4)": int(existing_notes.get("langue", 0))
+                })
             
-            # Formulaire de notation par évaluateur
-            st.markdown(f"#### Grille de notation (Évaluateur : {user_name})")
-            existing_notes = cand_obj["notes"].get(user_name, {"arg": 0, "ecoute": 0, "equipe": 0, "regles": 0, "langue": 0})
+            df_editable = pd.DataFrame(table_data)
             
-            with st.form(f"form_note_{selected_cand_name}"):
-                arg = st.slider("1. Argumentation (sur 4)", 0, 4, int(existing_notes.get("arg", 0)))
-                ecoute = st.slider("2. Écoute (sur 4)", 0, 4, int(existing_notes.get("ecoute", 0)))
-                equipe = st.slider("3. Esprit d'équipe (sur 4)", 0, 4, int(existing_notes.get("equipe", 0)))
-                regles = st.slider("4. Respect des règles (sur 4)", 0, 4, int(existing_notes.get("regles", 0)))
-                langue = st.slider("5. Maîtrise de la langue (sur 4)", 0, 4, int(existing_notes.get("langue", 0)))
-                
-                submitted_notes = st.form_submit_button("Enregistrer mes notes")
-                
-                if submitted_notes:
-                    cand_obj["notes"][user_name] = {
-                        "arg": arg, "ecoute": ecoute, "equipe": equipe, "regles": regles, "langue": langue
+            # Configuration des options de colonnes pour le tableau interactif
+            edited_df = st.data_editor(
+                df_editable,
+                column_config={
+                    "Nom": st.column_config.TextColumn("Candidat", disabled=True),
+                    "Session": st.column_config.TextColumn("Session", disabled=True),
+                    "Présence": st.column_config.SelectboxColumn("Présence", options=["Non pointé", "Présent", "Absent"], required=True),
+                    "Argumentation (/4)": st.column_config.NumberColumn("Arg (/4)", min_value=0, max_value=4, step=1),
+                    "Écoute (/4)": st.column_config.NumberColumn("Écoute (/4)", min_value=0, max_value=4, step=1),
+                    "Esprit d'équipe (/4)": st.column_config.NumberColumn("Équipe (/4)", min_value=0, max_value=4, step=1),
+                    "Respect des règles (/4)": st.column_config.NumberColumn("Règles (/4)", min_value=0, max_value=4, step=1),
+                    "Maîtrise de la langue (/4)": st.column_config.NumberColumn("Langue (/4)", min_value=0, max_value=4, step=1),
+                },
+                use_container_width=True,
+                hide_index=True,
+                key="editor_grades"
+            )
+            
+            if st.button("💾 Enregistrer toutes les modifications du tableau"):
+                for _, row in edited_df.iterrows():
+                    c_obj = next(c for c in st.session_state.database if c["name"] == row["Nom"])
+                    c_obj["presence"] = row["Présence"]
+                    if user_name not in c_obj["notes"]:
+                        c_obj["notes"][user_name] = {}
+                    c_obj["notes"][user_name] = {
+                        "arg": int(row["Argumentation (/4)"]),
+                        "ecoute": int(row["Écoute (/4)"]),
+                        "equipe": int(row["Esprit d'équipe (/4)"]),
+                        "regles": int(row["Respect des règles (/4)"]),
+                        "langue": int(row["Maîtrise de la langue (/4)"])
                     }
-                    save_data(st.session_state.database)
-                    st.success("Notes enregistrées avec succès sur la plateforme !")
-        
+                save_data(st.session_state.database)
+                st.success("Toutes les notes et présences ont été enregistrées et mutualisées avec succès !")
+
         # ------------------------------------------
         # SOUS-ONGLET 2 : GESTION DES EQUIPES & SESSIONS
         # ------------------------------------------
@@ -295,7 +317,7 @@ with tab_bureau:
             mod_cand = next(c for c in st.session_state.database if c["name"] == mod_cand_name)
             
             with st.form("form_edit_candidate"):
-                new_team = st.selectbox("Équipe", ["Oui...", "Non..."], index=0 if mod_cand["team"] == "Oui..." else 1)
+                new_team = st.text_input("Équipe assignée", value=mod_cand["team"])
                 new_session = st.selectbox("Session", ["Session 1", "Session 2"], index=0 if mod_cand["session"] == "Session 1" else 1)
                 
                 submitted_mod = st.form_submit_button("Mettre à jour les informations")
@@ -321,7 +343,7 @@ with tab_bureau:
         # ------------------------------------------
         with bureau_tab_ranking:
             st.markdown("### 🏆 Classement Général Automatique (Confidentiel)")
-            st.write("La plateforme calcule automatiquement la moyenne générale de chaque candidat à partir de toutes les notes attribuées par les différents membres du bureau. Les 25 premiers sont automatiquement retenus.")
+            st.write("La plateforme fusionne automatiquement toutes les notes saisies par les différents membres du bureau pour calculer une moyenne globale unique. Les 25 premiers sont automatiquement retenus.")
             
             ranking_data = []
             for c in st.session_state.database:
