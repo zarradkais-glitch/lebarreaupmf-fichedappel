@@ -6,7 +6,7 @@ import json
 
 # Configuration de la page
 st.set_page_config(
-    page_title="Le Barreau | Haute Instance & Recrutement",
+    page_title="Le Barreau | Recrutement",
     page_icon="⚖️",
     layout="centered"
 )
@@ -139,7 +139,7 @@ default_database = [
     { "name": "Rahma Hosni", "session": "Session 2", "topic": "Faut-il limiter la liberté d'expression en France ?", "date": "Mercredi 9 septembre de 16h à 17h", "location": "Salle F109 (Entrée Rue Bel Air)", "judges": "Sarra Ben Mahmoud et Mayara Hamaoui", "docName": "Background Guide - Liberté d'Expression", "team": "Non, il ne faut pas", "presence": "Non pointé", "notes": {} },
     { "name": "Yasmine Mahjoub", "session": "Session 2", "topic": "Faut-il limiter la liberté d'expression en France ?", "date": "Mercredi 9 septembre de 16h à 17h", "location": "Salle F109 (Entrée Rue Bel Air)", "judges": "Sarra Ben Mahmoud et Mayara Hamaoui", "docName": "Background Guide - Liberté d'Expression", "team": "Oui, il faut", "presence": "Non pointé", "notes": {} },
     { "name": "Behia Sarra Khedher", "session": "Session 2", "topic": "Faut-il limiter la liberté d'expression en France ?", "date": "Mercredi 9 septembre de 16h à 17h", "location": "Salle F109 (Entrée Rue Bel Air)", "judges": "Sarra Ben Mahmoud et Mayara Hamaoui", "docName": "Background Guide - Liberté d'Expression", "team": "Non, il ne faut pas", "presence": "Non pointé", "notes": {} },
-    { "name": "Sofia Zouari", "session": "Session 2", "topic": "Faut-il limiter la liberté d'expression en France ?", "date": "Mercredi 9 septembre de 16h à 17h", "location": "Salle F109 (Entrée Rue Bel Air)", "judges": "Sarra Ben Mahmoud et Mayara Hamaoui", "docName": "Background Guide - Liberté d'Expression", "team": "Non, il ne faut pas", "presence": "Non pointé", "notes": {} }
+    { "name": "Sofia Zouari", "session": "Session 2", "topic": "Faut-il limiter la liberté d'expression en France ?", "date": "Mercredi 9 septembre de 16h à 17h", "location": "Salle F109 (Entrée Rue Bel Air)", "judges": "Sarra Ben Mahmoud et Mayara Hamaoui", "docName": "Background Guide - Liberté d'Expression", "team": "Non, il ne faut pas", "presence": "Non pointé", "notes": {} },
     { "name": "Maya Aissa", "session": "Session 2", "topic": "Faut-il limiter la liberté d'expression en France ?", "date": "Mercredi 9 septembre de 16h à 17h", "location": "Salle F109 (Entrée Rue Bel Air)", "judges": "Sarra Ben Mahmoud et Mayara Hamaoui", "docName": "Background Guide - Liberté d'Expression", "team": "Oui, il faut", "presence": "Non pointé", "notes": {} },
 ]
 
@@ -264,6 +264,7 @@ with tab_bureau:
     bureau_accounts = {
         "Kaïs Zarrad - co-président": "K9#zL$mP2!qR8v",
         "Adam Chtourou - co-président": "Ad9$xK3#wY5!tN",
+        "Fedi El Ghoul - Trésorier": "Fd7#tG9!kL3$wQ",
         "Mayara Hamaoui - Cheffe communication": "My7*bH2!eD4#sQ",
         "Sarra Ben Mahmoud - Cheffe média": "Sr5#nM8!aF6$pW",
         "Madame Sfia - prof référente": "Sf9!rP4#tV2$jK"
